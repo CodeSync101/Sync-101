@@ -46,4 +46,5 @@ public class GitHubApiClient {
             throw new RuntimeException("Unexpected error occurred while calling GitHub API", e);
         }
     }
+
 }
