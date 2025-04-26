@@ -1,28 +1,52 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
   application:
     name: api-gateway
-
+  main:
+    allow-bean-definition-overriding: true
+    web-application-type: reactive
   cloud:
     gateway:
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
-
       routes:
+        - id: discovery-server
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/web
+          filters:
+            - SetPath=/
+        - id: discovery-server-static
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/api/user/**
+            - Path=/api/users/**
           filters:
             - StripPrefix=2
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/codesync-auth
+          jwk-set-uri: http://localhost:8080/realms/codesync-auth/protocol/openid-connect/certs
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-        defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:password@localhost:8761/eureka
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: INFO
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web: DEBUG
