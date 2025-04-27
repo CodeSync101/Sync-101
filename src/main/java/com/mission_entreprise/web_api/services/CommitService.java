@@ -1,0 +1,42 @@
+package com.mission_entreprise.web_api.services;
+
+import com.mission_entreprise.web_api.dtos.CommitResponse;
+import com.mission_entreprise.web_api.entities.Commit;
+import com.mission_entreprise.web_api.repositories.CommitRepository;
+import com.mission_entreprise.web_api.utils.GitHubApiClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CommitService {
+
+    private final GitHubApiClient gitHubApiClient;
+    private final CommitRepository commitRepository;
+
+    @Autowired
+    public CommitService(GitHubApiClient gitHubApiClient, CommitRepository commitRepository) {
+        this.gitHubApiClient = gitHubApiClient;
+        this.commitRepository = commitRepository;
+    }
+
+    public void saveCommitsByOrgAndRepo(String orgName, String repoName) {
+        CommitResponse[] commitResponses = gitHubApiClient.fetchCommitsByOrgAndRepo(orgName, repoName);
+
+        if (commitResponses != null) {
+
+            for (CommitResponse commitResponse : commitResponses) {
+                String author = commitResponse.getCommit().getAuthor().getName();
+                String date = commitResponse.getCommit().getAuthor().getDate();
+
+                if (!commitRepository.existsByAuthorAndDate(author, date)) {
+                    Commit commit = new Commit();
+                    commit.setAuthor(author);
+                    commit.setDate(date);
+                    commit.setMessage(commitResponse.getCommit().getMessage());
+
+                    commitRepository.save(commit);
+                }
+            }
+        }
+    }
+}

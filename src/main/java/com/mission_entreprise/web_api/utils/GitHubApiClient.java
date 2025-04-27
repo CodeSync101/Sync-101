@@ -1,5 +1,6 @@
 package com.mission_entreprise.web_api.utils;
 
+import com.mission_entreprise.web_api.dtos.CommitResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,19 +33,32 @@ public class GitHubApiClient {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(githubToken);
-        headers.set("Accept", "application/vnd.github+json");
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        headers.set("Accept", "application/vnd.github.v3+json");
 
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, responseType);
-            return response.getBody();
+            ResponseEntity<T> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, responseType);
+            return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            logger.error("Error fetching data from GitHub API for URL: {}", url, e);
-            throw new RuntimeException("GitHub API request failed: " + e.getMessage(), e);
-        } catch (Exception e) {
-            logger.error("Unexpected error fetching data from GitHub API for URL: {}", url, e);
-            throw new RuntimeException("Unexpected error occurred while calling GitHub API", e);
+            logger.error("Error fetching data from GitHub API: {}", e.getMessage());
+            throw e;
         }
     }
 
+    public CommitResponse[] fetchCommitsByOrgAndRepo(String org, String repo) {
+        String url = String.format("https://api.github.com/repos/%s/%s/commits", org, repo);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(githubToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<CommitResponse[]> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, CommitResponse[].class);
+            return responseEntity.getBody(); // Returns the list of commits
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.error("Error fetching data from GitHub API: {}", e.getMessage());
+            throw e;
+        }
+    }
 }
