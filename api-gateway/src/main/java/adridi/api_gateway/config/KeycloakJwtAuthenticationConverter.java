@@ -1,4 +1,4 @@
-package adridi.api_gateway.config;
+package com.aziz.apigateway.config;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

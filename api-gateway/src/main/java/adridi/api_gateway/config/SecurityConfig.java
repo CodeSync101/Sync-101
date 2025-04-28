@@ -1,4 +1,4 @@
-package adridi.api_gateway.config;
+package com.aziz.apigateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ public class SecurityConfig {
                         .anyExchange()
                         .authenticated())
                 .oauth2ResourceServer(auth ->
-                        auth.jwt(token -> token.jwtAuthenticationConverter(new adridi.api_gateway.config.KeycloakJwtAuthenticationConverter())));
+                        auth.jwt(token -> token.jwtAuthenticationConverter(new com.aziz.apigateway.config.KeycloakJwtAuthenticationConverter())));
 //                        .oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::jwt);
         http.cors();
         return http.build();
