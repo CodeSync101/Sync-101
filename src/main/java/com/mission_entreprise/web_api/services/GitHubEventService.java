@@ -72,45 +72,6 @@ public class GitHubEventService {
             throw new RuntimeException("Failed to fetch GitHub events", e);
         }
     }
-    public List<GitHubEventDto> fetchUserEvents(String username) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-
-        String userEventsUrl = String.format("https://api.github.com/users/%s/events", username);
-        logger.info("Fetching events for user {} from {}", username, userEventsUrl);
-
-        HttpHeaders headers = new HttpHeaders();
-        if (githubToken != null && !githubToken.isEmpty()) {
-            headers.setBearerAuth(githubToken);
-        }
-        headers.set("Accept", "application/vnd.github.v3+json");
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<GitHubEvent[]> response = restTemplate.exchange(
-                    userEventsUrl,
-                    HttpMethod.GET,
-                    entity,
-                    GitHubEvent[].class
-            );
-
-            GitHubEvent[] events = response.getBody();
-
-            if (events == null) {
-                logger.warn("No events were returned for user {}", username);
-                return new ArrayList<>();
-            }
-
-            logger.info("Successfully fetched {} events for user {}", events.length, username);
-            return mapToEventDtos(events);
-
-        } catch (Exception e) {
-            logger.error("Error fetching events for user {}: {}", username, e.getMessage(), e);
-            throw new RuntimeException("Failed to fetch events for user " + username, e);
-        }
-    }
     public List<GitHubEventDto> fetchOrganizationEvents(String orgName) {
         if (orgName == null || orgName.trim().isEmpty()) {
             throw new IllegalArgumentException("Organization name cannot be null or empty");
@@ -253,6 +214,8 @@ public class GitHubEventService {
                 ))
                 .collect(Collectors.toList());
     }
+
+
     private List<GitHubEventDto> mapToEventDtos(GitHubEvent[] events) {
         return Arrays.stream(events)
                 .filter(event -> "PushEvent".equals(event.getType()) &&

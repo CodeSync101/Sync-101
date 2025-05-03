@@ -33,7 +33,29 @@ public class CommitService {
                     commit.setAuthor(author);
                     commit.setDate(date);
                     commit.setMessage(commitResponse.getCommit().getMessage());
+                    commit.setRepositoryName(repoName);
+                    commit.setHtmlUrl(commitResponse.getHtmlUrl());
+                    commitRepository.save(commit);
+                }
+            }
+        }
+    }
+    public void saveCommitsByOrgAndRepoAndBranch(String orgName, String repoName, String branch) {
+        CommitResponse[] commitResponses = gitHubApiClient.fetchCommitsByOrgAndRepoAndBranch(orgName, repoName, branch);
 
+        if (commitResponses != null) {
+            for (CommitResponse commitResponse : commitResponses) {
+                String author = commitResponse.getCommit().getAuthor().getName();
+                String date = commitResponse.getCommit().getAuthor().getDate();
+
+                if (!commitRepository.existsByAuthorAndDate(author, date)) {
+                    Commit commit = new Commit();
+                    commit.setAuthor(author);
+                    commit.setDate(date);
+                    commit.setMessage(commitResponse.getCommit().getMessage());
+                    commit.setRepositoryName(repoName);
+                    commit.setBranchName(branch);
+                    commit.setHtmlUrl(commitResponse.getHtmlUrl());
                     commitRepository.save(commit);
                 }
             }

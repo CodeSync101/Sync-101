@@ -1,5 +1,6 @@
 package com.mission_entreprise.web_api.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,8 @@ import lombok.Setter;
 public class CommitResponse {
     private String sha;
     private CommitDetails commit;
-
+    @JsonProperty("html_url")
+    private String htmlUrl;
     @Getter
     @Setter
     public static class CommitDetails {

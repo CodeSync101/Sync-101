@@ -17,11 +17,6 @@ public class GitHubEventController {
     }
 
 
-    @GetMapping("/users/{username}/events")
-    public ResponseEntity<List<GitHubEventDto>> getUserEvents(@PathVariable String username) {
-        List<GitHubEventDto> events = gitHubEventService.fetchUserEvents(username);
-        return ResponseEntity.ok(events);
-    }
 
     @GetMapping("/orgs/{orgName}/events")
     public ResponseEntity<List<GitHubEventDto>> getOrganizationEvents(@PathVariable String orgName) {

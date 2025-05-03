@@ -23,4 +23,12 @@ public class Commit {
 
     @JsonProperty("message")
     private String message;
+
+    private String repositoryName ;
+
+    @JsonProperty("html_url")
+    private String htmlUrl;
+
+    private String branchName;
+
 }

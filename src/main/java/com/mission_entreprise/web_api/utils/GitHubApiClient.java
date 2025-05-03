@@ -1,5 +1,6 @@
 package com.mission_entreprise.web_api.utils;
 
+import com.mission_entreprise.web_api.dtos.BranchResponse;
 import com.mission_entreprise.web_api.dtos.CommitResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,37 @@ public class GitHubApiClient {
             return responseEntity.getBody(); // Returns the list of commits
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Error fetching data from GitHub API: {}", e.getMessage());
+            throw e;
+        }
+    }
+    public CommitResponse[] fetchCommitsByOrgAndRepoAndBranch(String org, String repo, String branch) {
+        String url = String.format("https://api.github.com/repos/%s/%s/commits?sha=%s", org, repo, branch);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(githubToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<CommitResponse[]> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, CommitResponse[].class);
+            return responseEntity.getBody(); // Returns the list of commits
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.error("Error fetching commits for branch '{}' from GitHub API: {}", branch, e.getMessage());
+            throw e;
+        }
+    }
+    public BranchResponse[] fetchBranchesByOrgAndRepo(String org, String repo) {
+        String url = String.format("https://api.github.com/repos/%s/%s/branches", org, repo);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(githubToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<BranchResponse[]> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, BranchResponse[].class);
+            return responseEntity.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.error("Error fetching branches from GitHub API: {}", e.getMessage());
             throw e;
         }
     }
