@@ -2,6 +2,7 @@ package com.mission_entreprise.web_api.services;
 
 import com.mission_entreprise.web_api.dtos.PullResponse;
 import com.mission_entreprise.web_api.entities.Pull;
+import com.mission_entreprise.web_api.exceptions.PullNotFound;
 import com.mission_entreprise.web_api.repositories.PullRepository;
 import com.mission_entreprise.web_api.utils.GitHubApiClient;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,10 @@ public class PullService {
     public void savePullRequestsByOrgAndRepo(String org, String repo) {
         PullResponse[] pullResponses = gitHubApiClient.fetchPullRequestsByOrgAndRepo(org, repo);
 
-        if (pullResponses != null) {
+        if (pullResponses == null) {
+            throw new PullNotFound("Pulls Data Not Found");
+        }
+        {
             for (PullResponse pr : pullResponses) {
                 String author = pr.getUser().getLogin();
                 String createdAt = pr.getCreatedAt();
