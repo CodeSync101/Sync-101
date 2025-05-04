@@ -2,6 +2,7 @@ package com.mission_entreprise.web_api.utils;
 
 import com.mission_entreprise.web_api.dtos.BranchResponse;
 import com.mission_entreprise.web_api.dtos.CommitResponse;
+import com.mission_entreprise.web_api.dtos.PullResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,4 +94,23 @@ public class GitHubApiClient {
             throw e;
         }
     }
+
+    public PullResponse[] fetchPullRequestsByOrgAndRepo(String org, String repo) {
+        String url = String.format("https://api.github.com/repos/%s/%s/pulls?state=all" +
+                "", org, repo);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(githubToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<PullResponse[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, PullResponse[].class);
+            return response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.error("Error fetching pull requests: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+
 }
