@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface CommitRepository extends JpaRepository<Commit,Long> {
 
     boolean existsByAuthorAndDate(String author, String date);
+    long count();
 }

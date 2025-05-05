@@ -33,4 +33,10 @@ public class BranchService {
             );
         }
     }
+
+    public long getDistinctBranchCount() {
+        return branchRepository.countDistinctByName();
+    }
+
+
 }

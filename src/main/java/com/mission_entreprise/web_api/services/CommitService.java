@@ -61,4 +61,8 @@ public class CommitService {
             }
         }
     }
+    public long getTotalCommitsCount() {
+        return commitRepository.count();
+    }
+
 }

@@ -2,6 +2,7 @@ package com.mission_entreprise.web_api.repositories;
 
 import com.mission_entreprise.web_api.entities.Branch;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -10,4 +11,6 @@ import java.util.Optional;
 public interface BranchRepository extends JpaRepository<Branch,Long> {
     Optional<Branch> findByName(String name);
 
+    @Query("SELECT COUNT(DISTINCT b.name) FROM Branch b")
+    long countDistinctByName();
 }

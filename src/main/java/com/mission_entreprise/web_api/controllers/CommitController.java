@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/commit")
 public class CommitController {
@@ -18,16 +21,36 @@ public class CommitController {
     }
 
     @PostMapping("/save-commits")
-    public ResponseEntity<?> saveCommits(@RequestParam String orgName, @RequestParam String repoName) {
+    public ResponseEntity<Map<String, Object>> saveCommits(
+            @RequestParam String orgName,
+            @RequestParam String repoName) {
         commitService.saveCommitsByOrgAndRepo(orgName, repoName);
-        return new ResponseEntity<>("Commits saved", HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Commits saved");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @GetMapping("/commits-by-branch")
-    public ResponseEntity<?> getCommitsByBranch(
+    public ResponseEntity<Map<String, Object>> getCommitsByBranch(
             @RequestParam String orgName,
             @RequestParam String repoName,
             @RequestParam String branchName) {
         commitService.saveCommitsByOrgAndRepoAndBranch(orgName, repoName, branchName);
-        return new ResponseEntity<>("Commits for branch fetched and saved", HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Commits for branch fetched and saved");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/total-count")
+    public ResponseEntity<Map<String, Object>> getTotalCommitsCount() {
+        long count = commitService.getTotalCommitsCount();
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("totalCommits", count);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 }
