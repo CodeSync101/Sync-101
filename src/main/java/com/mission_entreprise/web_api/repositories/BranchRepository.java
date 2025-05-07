@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface BranchRepository extends JpaRepository<Branch,Long> {
-    Optional<Branch> findByName(String name);
+    Optional<Branch> findByNameAndRepositoryName(String name, String repositoryName);
 
     @Query("SELECT COUNT(DISTINCT b.name) FROM Branch b")
     long countDistinctByName();

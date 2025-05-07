@@ -6,8 +6,9 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "branch", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"name"})
+        @UniqueConstraint(columnNames = {"name", "repositoryName"})
 })
+
 @Getter
 @Setter
 public class Branch {

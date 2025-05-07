@@ -20,8 +20,8 @@ public class BranchService {
         BranchResponse[] branches = gitHubApiClient.fetchBranchesByOrgAndRepo(org, repo);
 
         for (BranchResponse branchDto : branches) {
-            branchRepository.findByName(branchDto.getName()).ifPresentOrElse(
-                    (existing) -> log.info("Branch '{}' already exists", existing.getName()),
+            branchRepository.findByNameAndRepositoryName(branchDto.getName(), repo).ifPresentOrElse(
+                    (existing) -> log.info("Branch '{}' already exists in repository '{}'", existing.getName(), repo),
                     () -> {
                         Branch branch = new Branch();
                         branch.setName(branchDto.getName());
@@ -32,6 +32,7 @@ public class BranchService {
                     }
             );
         }
+
     }
 
     public long getDistinctBranchCount() {
