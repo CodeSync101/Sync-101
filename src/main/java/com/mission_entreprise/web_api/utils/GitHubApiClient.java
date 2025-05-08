@@ -94,7 +94,6 @@ public class GitHubApiClient {
             throw e;
         }
     }
-
     public PullResponse[] fetchPullRequestsByOrgAndRepo(String org, String repo) {
         String url = String.format("https://api.github.com/repos/%s/%s/pulls?state=all" +
                 "", org, repo);
@@ -111,6 +110,8 @@ public class GitHubApiClient {
             throw e;
         }
     }
+
+
 
 
 }

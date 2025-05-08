@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,6 +50,28 @@ public class CommitController {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("totalCommits", count);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping("/distinct-authors")
+    public ResponseEntity<Map<String, Object>> getDistinctCommitAuthors() {
+        Map<String, Object> authorsWithCount = commitService.getDistinctAuthorsWithCount();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("authors", authorsWithCount.get("authors"));
+        response.put("authorsCount", authorsWithCount.get("authorsCount"));
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping("/distinct-repositories")
+    public ResponseEntity<Map<String, Object>> getDistinctRepositories() {
+        Map<String, Object> repoData = commitService.getDistinctRepositoriesWithCount();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("repositories", repoData.get("repositories"));
+        response.put("repositoryCount", repoData.get("repositoryCount"));
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

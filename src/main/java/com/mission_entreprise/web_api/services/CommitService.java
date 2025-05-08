@@ -7,6 +7,10 @@ import com.mission_entreprise.web_api.utils.GitHubApiClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class CommitService {
 
@@ -64,5 +68,26 @@ public class CommitService {
     public long getTotalCommitsCount() {
         return commitRepository.count();
     }
+    public Map<String, Object> getDistinctRepositoriesWithCount() {
+        List<String> repositories = commitRepository.findDistinctRepositoryNames();
+        Long count = commitRepository.countDistinctRepositories();
 
+        Map<String, Object> result = new HashMap<>();
+        result.put("repositories", repositories);
+        result.put("repositoryCount", count);
+
+        return result;
+    }
+
+
+    public Map<String, Object> getDistinctAuthorsWithCount() {
+        List<String> authors = commitRepository.findDistinctAuthors();
+        Long authorsCount = commitRepository.countDistinctAuthors();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("authors", authors);
+        result.put("authorsCount", authorsCount);
+
+        return result;
+    }
 }
