@@ -1,6 +1,7 @@
 package com.example.GestionRec_Not.services;
 
 import com.example.GestionRec_Not.entities.Reclamation;
+import com.example.GestionRec_Not.entities.Statut;
 import com.example.GestionRec_Not.entities.Userr;
 import com.example.GestionRec_Not.repository.ReclamationRepo;
 import com.example.GestionRec_Not.repository.UserRepository;
@@ -49,5 +50,25 @@ public class ReclamationServiceImp implements ReclamationService {
     @Override
     public List<Reclamation> getAllReclamations() {
         return reclamationRepo.findAll();
+    }
+    
+    @Override
+    public Reclamation changerStatutReclamation(Long id, String action) {
+        Reclamation reclamation = reclamationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Réclamation non trouvée"));
+        
+        switch (action.toUpperCase()) {
+            case "ACCEPTER":
+                reclamation.setStatut(Statut.TRAITEE);
+                break;
+            case "REFUSER":
+                reclamation.setStatut(Statut.REFUSEE);
+                break;
+            default:
+                reclamation.setStatut(Statut.EN_ATTENTE);
+                break;
+        }
+        
+        return reclamationRepo.save(reclamation);
     }
 }

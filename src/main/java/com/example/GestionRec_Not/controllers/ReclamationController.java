@@ -34,4 +34,9 @@ public class ReclamationController {
     public List<Reclamation> getAllReclamations() {
         return reclamationService.getAllReclamations();
     }
+    
+    @PutMapping("/statut/{id}/{action}")
+    public Reclamation changerStatutReclamation(@PathVariable Long id, @PathVariable String action) {
+        return reclamationService.changerStatutReclamation(id, action);
+    }
 }
