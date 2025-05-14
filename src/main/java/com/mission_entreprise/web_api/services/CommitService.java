@@ -69,15 +69,15 @@ public class CommitService {
         return commitRepository.count();
     }
     public Map<String, Object> getDistinctRepositoriesWithCount() {
-        List<String> repositories = commitRepository.findDistinctRepositoryNames();
-        Long count = commitRepository.countDistinctRepositories();
+        List<String> repositories = commitRepository.findDistinctSanitizedRepositoryNames();
+        Long count = commitRepository.countDistinctSanitizedRepositories();
 
         Map<String, Object> result = new HashMap<>();
         result.put("repositories", repositories);
         result.put("repositoryCount", count);
-
         return result;
     }
+
 
 
     public Map<String, Object> getDistinctAuthorsWithCount() {
@@ -89,5 +89,32 @@ public class CommitService {
         result.put("authorsCount", authorsCount);
 
         return result;
+    }
+
+    public Map<String, Long> getCommitCountsByDateRange(String startDate, String endDate, String author) {
+        // Make sure start and end dates are in the format yyyy-MM-dd
+        if (!startDate.matches("\\d{4}-\\d{2}-\\d{2}") || !endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new IllegalArgumentException("Date format must be yyyy-MM-dd");
+        }
+
+        // Format the dates to include time for proper comparison (inclusive range)
+        String formattedStartDate = startDate + "T00:00:00Z";
+        String formattedEndDate = endDate + "T23:59:59Z";
+
+        List<Object[]> results = commitRepository.countCommitsByDateBetweenAndAuthor(
+                formattedStartDate,
+                formattedEndDate,
+                author.isEmpty() ? null : author
+        );
+
+        Map<String, Long> commitCountsByDate = new HashMap<>();
+
+        for (Object[] result : results) {
+            String date = (String) result[0];
+            Long count = ((Number) result[1]).longValue();
+            commitCountsByDate.put(date, count);
+        }
+
+        return commitCountsByDate;
     }
 }

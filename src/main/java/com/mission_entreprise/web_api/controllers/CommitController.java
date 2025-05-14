@@ -74,6 +74,18 @@ public class CommitController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @GetMapping("/commits-by-collaborator")
+    public ResponseEntity<Map<String, Long>> getCommitCountsByDateRange(
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @RequestParam(required = false, defaultValue = "") String author) {
 
+        try {
+            Map<String, Long> commitCounts = commitService.getCommitCountsByDateRange(startDate, endDate, author);
+            return ResponseEntity.ok(commitCounts);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 }
