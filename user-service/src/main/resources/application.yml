@@ -1,0 +1,55 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://postgres:5432/user_db
+    username: postgres
+    password: "root"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak-auth:8080/realms/codesync-auth
+          jwk-set-uri: http://keycloak-auth:8080/realms/codesync-auth/protocol/openid-connect/certs
+
+keycloak:
+  server-url: http://keycloak-auth:8080
+  realm: codesync-auth
+  client-id: CodeSync101
+  admin-client:
+    username: admin
+    password: admin
+    client-id: admin-cli
+    grant-type: password
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka:password@eureka-server:8761/eureka
+  instance:
+    prefer-ip-address: true
+    hostname: user-service
+
+github:
+  api:
+    url: https://api.github.com
+    token: ${GITHUB_TOKEN}
+
+logging:
+  level:
+    root: INFO
+    org.springframework: DEBUG
+    org.keycloak: DEBUG
