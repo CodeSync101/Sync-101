@@ -34,9 +34,11 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -69,6 +71,7 @@ public class RapportService {
         List<Object[]> branchesByDate = branchRepository.countBranchesByDate();
         List<Object[]> ticketsByStatus = ticketRepository.countTicketsByStatus();
         List<Ticket> tickets = ticketRepository.findAll();
+        List<Utilisateur> utilisateurs = utilisateurRepository.findAll();
 
         Document document = new Document();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -149,10 +152,11 @@ public class RapportService {
             for (PullRequest pr : pullRequests) {
                 Utilisateur utilisateur = utilisateurRepository.findById(pr.getUtilisateurId())
                         .orElse(new Utilisateur());
-                prTable.addCell(new PdfPCell(new Phrase(pr.getTitre(), bodyFont)));
-                prTable.addCell(new PdfPCell(new Phrase(pr.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), bodyFont)));
-                prTable.addCell(new PdfPCell(new Phrase(pr.getEtat(), bodyFont)));
-                prTable.addCell(new PdfPCell(new Phrase(utilisateur.getNom() + " " + utilisateur.getPrenom(), bodyFont)));
+                String userName = (utilisateur.getNom() != null ? utilisateur.getNom() : "") + " " + (utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
+                prTable.addCell(new PdfPCell(new Phrase(pr.getTitre() != null ? pr.getTitre() : "", bodyFont)));
+                prTable.addCell(new PdfPCell(new Phrase(pr.getCreatedAt() != null ? pr.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "", bodyFont)));
+                prTable.addCell(new PdfPCell(new Phrase(pr.getEtat() != null ? pr.getEtat() : "", bodyFont)));
+                prTable.addCell(new PdfPCell(new Phrase(userName.trim(), bodyFont)));
             }
 
             document.add(prTable);
@@ -193,11 +197,12 @@ public class RapportService {
             for (Issue issue : issues) {
                 Utilisateur utilisateur = utilisateurRepository.findById(issue.getUtilisateurId())
                         .orElse(new Utilisateur());
-                issueTable.addCell(new PdfPCell(new Phrase(issue.getTitre(), bodyFont)));
-                issueTable.addCell(new PdfPCell(new Phrase(issue.getContenu(), bodyFont)));
-                issueTable.addCell(new PdfPCell(new Phrase(issue.getEtat(), bodyFont)));
-                issueTable.addCell(new PdfPCell(new Phrase(issue.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), bodyFont)));
-                issueTable.addCell(new PdfPCell(new Phrase(utilisateur.getNom() + " " + utilisateur.getPrenom(), bodyFont)));
+                String userName = (utilisateur.getNom() != null ? utilisateur.getNom() : "") + " " + (utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
+                issueTable.addCell(new PdfPCell(new Phrase(issue.getTitre() != null ? issue.getTitre() : "", bodyFont)));
+                issueTable.addCell(new PdfPCell(new Phrase(issue.getContenu() != null ? issue.getContenu() : "", bodyFont)));
+                issueTable.addCell(new PdfPCell(new Phrase(issue.getEtat() != null ? issue.getEtat() : "", bodyFont)));
+                issueTable.addCell(new PdfPCell(new Phrase(issue.getCreatedAt() != null ? issue.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "", bodyFont)));
+                issueTable.addCell(new PdfPCell(new Phrase(userName.trim(), bodyFont)));
             }
 
             document.add(issueTable);
@@ -275,7 +280,7 @@ public class RapportService {
             document.add(ticketChartImage);
             document.add(new Paragraph(" "));
 
-            // Section 10 : Liste des ticket
+            // Section 10 : Liste des tickets
             Paragraph ticketListTitle = new Paragraph("Liste des Tickets", headFont);
             ticketListTitle.setAlignment(Element.ALIGN_LEFT);
             document.add(ticketListTitle);
@@ -295,15 +300,113 @@ public class RapportService {
             for (Ticket ticket : tickets) {
                 Utilisateur assignedUser = utilisateurRepository.findById(ticket.getAssigneduser_id())
                         .orElse(new Utilisateur());
+                String userName = (assignedUser.getNom() != null ? assignedUser.getNom() : "") + " " + (assignedUser.getPrenom() != null ? assignedUser.getPrenom() : "");
                 ticketTable.addCell(new PdfPCell(new Phrase(String.valueOf(ticket.getId()), bodyFont)));
                 ticketTable.addCell(new PdfPCell(new Phrase(ticket.getJiraid() != null ? ticket.getJiraid() : "", bodyFont)));
                 ticketTable.addCell(new PdfPCell(new Phrase(ticket.getTitle() != null ? ticket.getTitle() : "", bodyFont)));
                 ticketTable.addCell(new PdfPCell(new Phrase(ticket.getStatus() != null ? ticket.getStatus() : "", bodyFont)));
                 ticketTable.addCell(new PdfPCell(new Phrase(ticket.getLastupdated() != null ? ticket.getLastupdated().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "", bodyFont)));
-                ticketTable.addCell(new PdfPCell(new Phrase(assignedUser.getNom() + " " + assignedUser.getPrenom(), bodyFont)));
+                ticketTable.addCell(new PdfPCell(new Phrase(userName.trim(), bodyFont)));
             }
 
             document.add(ticketTable);
+            document.add(new Paragraph(" "));
+
+            // Section 11 : Aide à la prise de décision
+            Paragraph decisionTitle = new Paragraph("Aide à la prise de décision", headFont);
+            decisionTitle.setAlignment(Element.ALIGN_LEFT);
+            document.add(decisionTitle);
+            document.add(new Paragraph(" "));
+
+            PdfPTable decisionTable = new PdfPTable(5);
+            decisionTable.setWidthPercentage(100);
+            decisionTable.setWidths(new int[]{3, 3, 2, 3, 3});
+
+            Stream.of("Nom", "Prénom", "Score", "Bonus", "Malus").forEach(header -> {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setBackgroundColor(Color.LIGHT_GRAY);
+                decisionTable.addCell(cell);
+            });
+
+            // Calcul des scores, bonus et malus
+            Map<String, Integer> scores = new HashMap<>();
+            Map<String, String> bonus = new HashMap<>();
+            Map<String, String> malus = new HashMap<>();
+
+            // Initialisation des scores et malus pour chaque utilisateur
+            for (Utilisateur utilisateur : utilisateurs) {
+                String key = utilisateur.getNom() + " " + utilisateur.getPrenom();
+                scores.put(key, 0);
+                malus.put(key, "-");
+            }
+
+            // Score des commits
+            for (Object[] row : stats) {
+                String key = row[0] + " " + row[1];
+                int commitCount = ((Long) row[2]).intValue();
+                scores.compute(key, (k, v) -> v + (commitCount * 5));
+            }
+
+            // Score des pull requests
+            for (PullRequest pr : pullRequests) {
+                Utilisateur utilisateur = utilisateurRepository.findById(pr.getUtilisateurId()).orElse(new Utilisateur());
+                String key = (utilisateur.getNom() != null ? utilisateur.getNom() : "") + " " + (utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
+                if ("MERGED".equals(pr.getEtat())) {
+                    scores.compute(key.trim(), (k, v) -> v + 10);
+                }
+            }
+
+            // Score des issues
+            for (Issue issue : issues) {
+                Utilisateur utilisateur = utilisateurRepository.findById(issue.getUtilisateurId()).orElse(new Utilisateur());
+                String key = (utilisateur.getNom() != null ? utilisateur.getNom() : "") + " " + (utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
+                if ("CLOSED".equals(issue.getEtat())) {
+                    scores.compute(key.trim(), (k, v) -> v + 8);
+                } else if ("OPEN".equals(issue.getEtat()) && issue.getCreatedAt() != null) {
+                    long daysOpen = ChronoUnit.DAYS.between(issue.getCreatedAt(), LocalDateTime.now());
+                    if (daysOpen > 30) {
+                        malus.put(key.trim(), "À surveiller (Issue ouverte > 30 jours)");
+                    }
+                }
+            }
+
+            // Score des branches
+            for (Object[] row : branchesWithUsers) {
+                String key = row[1] + " " + row[2];
+                scores.compute(key, (k, v) -> v + 3);
+            }
+
+            // Score des tickets
+            for (Ticket ticket : tickets) {
+                Utilisateur utilisateur = utilisateurRepository.findById(ticket.getAssigneduser_id()).orElse(new Utilisateur());
+                String key = (utilisateur.getNom() != null ? utilisateur.getNom() : "") + " " + (utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
+                if ("CLOSED".equals(ticket.getStatus())) {
+                    scores.compute(key.trim(), (k, v) -> v + 7);
+                } else if ("OPEN".equals(ticket.getStatus()) && ticket.getLastupdated() != null) {
+                    long daysOpen = ChronoUnit.DAYS.between(ticket.getLastupdated(), LocalDateTime.now());
+                    if (daysOpen > 30) {
+                        malus.compute(key.trim(), (k, v) -> v.equals("-") ? "À surveiller (Ticket ouvert > 30 jours)" : v);
+                    }
+                }
+            }
+
+            // Attribution des bonus
+            scores.forEach((key, score) -> {
+                bonus.put(key, score > 50 ? "+2" : "-");
+            });
+
+            // Ajout des lignes au tableau
+            scores.forEach((key, score) -> {
+                String[] nameParts = key.split(" ", 2);
+                decisionTable.addCell(new PdfPCell(new Phrase(nameParts[0], bodyFont)));
+                decisionTable.addCell(new PdfPCell(new Phrase(nameParts.length > 1 ? nameParts[1] : "", bodyFont)));
+                decisionTable.addCell(new PdfPCell(new Phrase(String.valueOf(score), bodyFont)));
+                decisionTable.addCell(new PdfPCell(new Phrase(bonus.getOrDefault(key, "-"), bodyFont)));
+                decisionTable.addCell(new PdfPCell(new Phrase(malus.getOrDefault(key, "-1"), bodyFont)));
+            });
+
+            document.add(decisionTable);
 
             document.close();
         } catch (DocumentException | IOException e) {
