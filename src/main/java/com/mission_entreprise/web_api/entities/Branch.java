@@ -25,4 +25,5 @@ public class Branch {
 
     private String repositoryName;
 
+    private String organization;
 }
