@@ -1,6 +1,11 @@
 package com.mission_entreprise.web_api.repositories;
 
+import com.mission_entreprise.web_api.dtos.EventAnalyticsDTO;
+import com.mission_entreprise.web_api.dtos.PullMergeDTO;
+import com.mission_entreprise.web_api.dtos.PushEventDTO;
+import com.mission_entreprise.web_api.entities.Branch;
 import com.mission_entreprise.web_api.entities.Commit;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,5 +38,18 @@ public interface CommitRepository extends JpaRepository<Commit,Long> {
             "GROUP BY SUBSTRING(c.date, 1, 10) " +
             "ORDER BY commitDate")
     List<Object[]> countCommitsByDateBetweenAndAuthor(String startDate, String endDate, String author);
+
+
+
+    @Query("select new com.mission_entreprise.web_api.dtos.EventAnalyticsDTO(c.date, c.author, c.htmlUrl, 'Commit') from Commit c order by c.date desc")
+    List<EventAnalyticsDTO> findEventsDetailsCommit(Pageable pageable);
+    @Query("select new com.mission_entreprise.web_api.dtos.PushEventDTO(g.createdAt, g.actorLogin, g.eventId, 'Push') from GitHubEventEntity g order by g.createdAt desc ")
+    List<PushEventDTO> findEventsDetailsPush(Pageable pageable);
+    @Query("select new com.mission_entreprise.web_api.dtos.PullMergeDTO(p.createdAt,p.author,p.htmlUrl,p.state,p.mergedAt,'Pull') from Pull p order by p.createdAt desc")
+    List<PullMergeDTO> findEventsDetailsPulls(Pageable pageable);
+
+
+
+
 
 }
