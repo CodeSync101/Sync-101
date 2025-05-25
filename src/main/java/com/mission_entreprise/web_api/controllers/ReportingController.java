@@ -1,6 +1,7 @@
 package com.mission_entreprise.web_api.controllers;
 
 
+import com.mission_entreprise.web_api.dtos.ContributionSummaryDTO;
 import com.mission_entreprise.web_api.dtos.EventAnalyticsDTO;
 import com.mission_entreprise.web_api.dtos.PullMergeDTO;
 import com.mission_entreprise.web_api.dtos.PushEventDTO;
@@ -22,7 +23,7 @@ public class ReportingController {
 
 
     @GetMapping("/get-latest-commits")
-    public ResponseEntity<List<EventAnalyticsDTO>> getLatestCommits(){
+    public ResponseEntity<List<EventAnalyticsDTO>> getLatestCommits() {
         try {
             List<EventAnalyticsDTO> commits = commitService.getAllCommitsAnalyticsLatest();
             return ResponseEntity.ok(commits);
@@ -32,7 +33,7 @@ public class ReportingController {
     }
 
     @GetMapping("/get-latest-pushs")
-    public ResponseEntity<List<PushEventDTO>> getLatestPush(){
+    public ResponseEntity<List<PushEventDTO>> getLatestPush() {
         try {
             List<PushEventDTO> pushes = commitService.getAllPushAnalyticsLatest();
             return ResponseEntity.ok(pushes);
@@ -42,11 +43,22 @@ public class ReportingController {
     }
 
     @GetMapping("/get-latest-pulls")
-    public ResponseEntity<List<PullMergeDTO>> getLatestPulls(){
+    public ResponseEntity<List<PullMergeDTO>> getLatestPulls() {
         try {
             List<PullMergeDTO> pushes = commitService.getAllPullAnalyticsLatest();
             return ResponseEntity.ok(pushes);
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/contribution-summary")
+    public ResponseEntity<ContributionSummaryDTO> getContributionSummary() {
+        try {
+            int topLimit = 6 ;
+            ContributionSummaryDTO summary = commitService.getContributionSummary(topLimit);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }

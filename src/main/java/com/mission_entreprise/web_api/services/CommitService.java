@@ -1,9 +1,6 @@
 package com.mission_entreprise.web_api.services;
 
-import com.mission_entreprise.web_api.dtos.CommitResponse;
-import com.mission_entreprise.web_api.dtos.EventAnalyticsDTO;
-import com.mission_entreprise.web_api.dtos.PullMergeDTO;
-import com.mission_entreprise.web_api.dtos.PushEventDTO;
+import com.mission_entreprise.web_api.dtos.*;
 import com.mission_entreprise.web_api.entities.Commit;
 import com.mission_entreprise.web_api.repositories.CommitRepository;
 import com.mission_entreprise.web_api.utils.GitHubApiClient;
@@ -27,19 +24,40 @@ public class CommitService {
 
 
     public List<EventAnalyticsDTO> getAllCommitsAnalyticsLatest() {
-        Pageable topFive = PageRequest.of(0, 5);
+        Pageable topFive = PageRequest.of(0, 50);
         return commitRepository.findEventsDetailsCommit(topFive);
     }
     public List<PushEventDTO> getAllPushAnalyticsLatest() {
-        Pageable topFive = PageRequest.of(0, 5);
+        Pageable topFive = PageRequest.of(0, 50);
         return commitRepository.findEventsDetailsPush(topFive);
     }
     public List<PullMergeDTO> getAllPullAnalyticsLatest() {
-        Pageable topFive = PageRequest.of(0, 5);
+        Pageable topFive = PageRequest.of(0, 50);
         return commitRepository.findEventsDetailsPulls(topFive);
     }
 
+    public ContributionSummaryDTO getContributionSummary(int topLimit) {
+        List<EventAnalyticsDTO> commits = getAllCommitsAnalyticsLatest();
+        List<PushEventDTO> pushes = getAllPushAnalyticsLatest();
+        List<PullMergeDTO> pulls = getAllPullAnalyticsLatest();
 
+        Map<String, Integer> contributionsByAuthor = new HashMap<>();
+
+        commits.forEach(c -> contributionsByAuthor.merge(c.getAuthor(), 1, Integer::sum));
+        pushes.forEach(p -> contributionsByAuthor.merge(p.getAuthor(), 1, Integer::sum));
+        pulls.forEach(p -> contributionsByAuthor.merge(p.getAuthor(), 1, Integer::sum));
+
+        int totalContributions = contributionsByAuthor.values().stream().mapToInt(Integer::intValue).sum();
+
+        List<ContributionSummaryDTO.ContributorDTO> topContributors = contributionsByAuthor.entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(topLimit)
+                .map(entry -> new ContributionSummaryDTO.ContributorDTO(entry.getKey(), entry.getValue()))
+                .toList();
+
+        return new ContributionSummaryDTO(totalContributions, topContributors);
+    }
 
     public void saveCommitsByOrgAndRepo(String orgName, String repoName) {
         CommitResponse[] commitResponses = gitHubApiClient.fetchCommitsByOrgAndRepo(orgName, repoName);
