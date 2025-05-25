@@ -21,7 +21,7 @@ public class SynchronizationService {
     private final BranchRepository branchRepository ;
     private final GitHubEventService gitHubEventService ;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 9000)
     public void synchronize() {
         // 1. Commit sync per branch
         List<Branch> branches = branchRepository.findAll();
