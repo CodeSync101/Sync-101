@@ -37,6 +37,12 @@ public class UserController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(mapToResponse(user));
+    }
+
     @DeleteMapping("/{id}")
 //    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {

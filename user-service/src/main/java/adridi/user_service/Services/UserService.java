@@ -15,4 +15,5 @@ public interface UserService {
     User addUserToGroup(Long userId, Long groupId);
     User removeUserFromGroup(Long userId, String groupName);
     Set<GroupRepo> getUserGroups(Long userId);
+    User getUserById(Long id);
 }
