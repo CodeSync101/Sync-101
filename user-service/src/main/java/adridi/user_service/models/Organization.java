@@ -1,6 +1,5 @@
 package adridi.user_service.Models;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,15 +23,16 @@ public class Organization {
     private String org_email;
     private String org_owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "classroom_id")
+    private ClassRoom classRoom;
+
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
     private List<GroupRepo> groupRepos = new ArrayList<>();
-
 
     public Organization(String org_name, String org_email, String org_owner) {
         this.org_name = org_name;
         this.org_email = org_email;
         this.org_owner = org_owner;
     }
-
-
 }

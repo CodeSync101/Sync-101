@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,13 +16,10 @@ import lombok.Setter;
 @Setter
 @Table(name = "users_map")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String keycloakId; // Added to store Keycloak user ID
-
+    private String keycloakId;
     private String username;
     private String first_name;
     private String last_name;
@@ -28,11 +28,16 @@ public class User {
     private Boolean locked;
     private Boolean enabled;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private GroupRepo group;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_groups",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<GroupRepo> groups = new HashSet<>();
 
-    public User(String keycloakId, String username, String first_name, String last_name, String email, String password, Boolean locked, Boolean enabled) {
+    public User(String keycloakId, String username, String first_name, String last_name,
+                String email, String password, Boolean locked, Boolean enabled) {
         this.keycloakId = keycloakId;
         this.username = username;
         this.first_name = first_name;

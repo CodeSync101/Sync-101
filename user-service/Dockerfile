@@ -3,6 +3,9 @@ FROM eclipse-temurin:23-jre-alpine
 # Set working directory
 WORKDIR /opt
 
+# Install curl
+RUN apk add --no-cache curl
+
 # Set environment variables
 ENV PORT=8083
 ENV JAVA_OPTS="-Xmx512m -Xms256m"

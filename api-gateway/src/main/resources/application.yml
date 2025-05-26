@@ -15,33 +15,36 @@ spring:
           lower-case-service-id: true
       routes:
         - id: discovery-server
-          uri: http://localhost:8761
+          uri: http://eureka-server:8761
           predicates:
             - Path=/eureka/web
           filters:
             - SetPath=/
         - id: discovery-server-static
-          uri: http://localhost:8761
+          uri: http://eureka-server:8761
           predicates:
             - Path=/eureka/**
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/api/users/**
+            - Path=/api/v1/users/**
           filters:
-            - StripPrefix=2
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/CodeSync-auth
-          jwk-set-uri: http://localhost:8080/realms/CodeSync-auth/protocol/openid-connect/certs
+            - StripPrefix=1
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://keycloak-auth:8080/realms/codesync-auth
+#          jwk-set-uri: http://keycloak-auth:8080/realms/codesync-auth/protocol/openid-connect/certs
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     serviceUrl:
-      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://eureka:password@localhost:8761/eureka/}
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://eureka:password@eureka-server:8761/eureka/}
+    instance:
+      prefer-ip-address: true
 
 logging:
   level:

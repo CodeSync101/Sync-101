@@ -9,9 +9,9 @@ import adridi.user_service.Services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,89 +19,77 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
         User user = userService.registerUser(request);
-        GroupRepoDTO groupRepoDTO = user.getGroup() != null ? new GroupRepoDTO(
-                user.getGroup().getId(),
-                user.getGroup().getGroup_name(),
-                user.getGroup().getGroup_description(),
-                user.getGroup().getGroup_type()
-        ) : null;
-
-        UserResponse response = new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getFirst_name(),
-                user.getLast_name(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getLocked(),
-                user.getEnabled(),
-                groupRepoDTO
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(mapToResponse(user));
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('admin')")
+//    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        List<UserResponse> responses = users.stream().map(user -> {
-            GroupRepoDTO groupRepoDTO = user.getGroup() != null ? new GroupRepoDTO(
-                    user.getGroup().getId(),
-                    user.getGroup().getGroup_name(),
-                    user.getGroup().getGroup_description(),
-                    user.getGroup().getGroup_type()
-            ) : null;
-
-            return new UserResponse(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFirst_name(),
-                    user.getLast_name(),
-                    user.getEmail(),
-                    user.getPassword(),
-                    user.getLocked(),
-                    user.getEnabled(),
-                    groupRepoDTO
-            );
-        }).collect(Collectors.toList());
+        List<UserResponse> responses = users.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('admin')")
+//    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('admin') or #id == authentication.principal.attributes['sub']")
+//    @PreAuthorize("hasRole('admin') or #id == authentication.principal.attributes['sub']")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request) {
         User user = userService.updateUser(id, request);
-        GroupRepoDTO groupRepoDTO = user.getGroup() != null ? new GroupRepoDTO(
-                user.getGroup().getId(),
-                user.getGroup().getGroup_name(),
-                user.getGroup().getGroup_description(),
-                user.getGroup().getGroup_type()
-        ) : null;
+        return ResponseEntity.ok(mapToResponse(user));
+    }
 
-        UserResponse response = new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getFirst_name(),
-                user.getLast_name(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getLocked(),
-                user.getEnabled(),
-                groupRepoDTO
-        );
-        return ResponseEntity.ok(response);
+    @PostMapping("/{userId}/groups/{groupId}")
+    public ResponseEntity<UserResponse> addUserToGroup(
+            @PathVariable Long userId,
+            @PathVariable Long groupId) {
+        User user = userService.addUserToGroup(userId, groupId);
+        return ResponseEntity.ok(mapToResponse(user));
+    }
+
+    @DeleteMapping("/{userId}/groups/{groupName}")
+//    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<UserResponse> removeUserFromGroup(
+            @PathVariable Long userId,
+            @PathVariable String groupName) {
+        User user = userService.removeUserFromGroup(userId, groupName);
+        return ResponseEntity.ok(mapToResponse(user));
+    }
+
+    private UserResponse mapToResponse(User user) {
+        Set<GroupRepoDTO> groupRepoDTOs = (user.getGroups() != null)
+                ? user.getGroups().stream()
+                .map(group -> new GroupRepoDTO(
+                        group.getId(),
+                        group.getGroup_name(),
+                        group.getGroup_description(),
+                        group.getGroup_type()
+                ))
+                .collect(Collectors.toSet())
+                : new HashSet<>();
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .keycloakId(user.getKeycloakId())
+                .username(user.getUsername())
+                .first_name(user.getFirst_name())
+                .last_name(user.getLast_name())
+                .email(user.getEmail())
+                .locked(user.getLocked())
+                .enabled(user.getEnabled())
+                .groups(groupRepoDTOs)
+                .build();
     }
 }

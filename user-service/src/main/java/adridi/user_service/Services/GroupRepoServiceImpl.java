@@ -14,7 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GroupRepoServiceImpl implements GroupRepoService {
@@ -47,6 +47,16 @@ public class GroupRepoServiceImpl implements GroupRepoService {
         return savedGroup;
     }
 
+    @Override
+    public List<GroupRepo> getAllGroups() {
+        return groupRepoRepository.findAll();
+    }
+
+    @Override
+    public GroupRepo getGroupById(Long id) {
+        return groupRepoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+    }
     private void createGitHubRepository(GroupRepoRequest request) {
         GitHubRepoRequest gitHubRequest = new GitHubRepoRequest(
                 request.getGroup_name(),

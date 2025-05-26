@@ -1,20 +1,23 @@
 package adridi.user_service.DTO;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import java.util.Set;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponse {
     private Long id;
+    private String keycloakId;
     private String username;
-    private String firstName;
-    private String lastName;
+    private String first_name;
+    private String last_name;
     private String email;
-    private String password;
     private Boolean locked;
     private Boolean enabled;
-    private GroupRepoDTO group;
+    private Set<GroupRepoDTO> groups;
 }

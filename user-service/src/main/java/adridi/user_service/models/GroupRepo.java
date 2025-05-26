@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -22,16 +24,15 @@ public class GroupRepo {
 
     @Column(unique = true)
     private String group_name;
-
     private String group_description;
-    private String group_type; // (public, private)
+    private String group_type;
 
     @ManyToOne
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
-    private List<User> users = new ArrayList<>();
+    @ManyToMany(mappedBy = "groups")
+    private Set<User> users = new HashSet<>();
 
     public GroupRepo(String group_name, String group_description, String group_type) {
         this.group_name = group_name;

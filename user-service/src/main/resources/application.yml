@@ -5,7 +5,7 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://postgres:5432/user_db
+    url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
     password: "root"
     driver-class-name: org.postgresql.Driver
@@ -20,11 +20,15 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak-auth:8080/realms/codesync-auth
-          jwk-set-uri: http://keycloak-auth:8080/realms/codesync-auth/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/codesync-auth
+          jwk-set-uri: http://localhost:8080/realms/codesync-auth/protocol/openid-connect/certs
+
+eureka:
+  client:
+    enabled: false
 
 keycloak:
-  server-url: http://keycloak-auth:8080
+  server-url: http://localhost:8080
   realm: codesync-auth
   client-id: CodeSync101
   admin-client:
@@ -32,24 +36,14 @@ keycloak:
     password: admin
     client-id: admin-cli
     grant-type: password
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://eureka:password@eureka-server:8761/eureka
-  instance:
-    prefer-ip-address: true
-    hostname: user-service
+    realm: codesync-auth
 
 github:
   api:
     url: https://api.github.com
-    token: ${GITHUB_TOKEN}
+#Add A github persone access token here
 
 logging:
   level:
     root: INFO
     org.springframework: DEBUG
-    org.keycloak: DEBUG

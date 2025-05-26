@@ -16,4 +16,6 @@ public class UserUpdateRequest {
     private String email;
     private String password;
     private String group_name;
+    private Boolean locked;
+    private Boolean enabled;
 }

@@ -28,6 +28,5 @@ public class UserRequest {
 
     private Boolean locked;
     private Boolean enabled;
-    private String group_name;
-    private String role; // Optional, for admin to assign roles
+    private String group_name;  // Already optional
 }
