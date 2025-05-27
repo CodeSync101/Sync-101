@@ -28,5 +28,6 @@ public class UserRequest {
 
     private Boolean locked;
     private Boolean enabled;
-    private String group_name;  // Already optional
+    private String group_name;
+    private String githubUsername;
 }

@@ -19,5 +19,6 @@ public class UserResponse {
     private String email;
     private Boolean locked;
     private Boolean enabled;
+    private String githubUsername;
     private Set<GroupRepoDTO> groups;
 }

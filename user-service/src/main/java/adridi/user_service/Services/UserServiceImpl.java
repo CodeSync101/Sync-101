@@ -9,7 +9,6 @@ import adridi.user_service.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,10 +19,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final GroupRepoRepository groupRepoRepository;
     private final GitHubService gitHubService;
+    private final KeycloakService keycloakService;
 
     @Override
     @Transactional
     public User registerUser(UserRequest request) {
+        String keycloakId = keycloakService.createKeycloakUser(request);
+
         User user = new User(
                 null,
                 request.getUsername(),
@@ -34,6 +36,8 @@ public class UserServiceImpl implements UserService {
                 request.getLocked() != null ? request.getLocked() : false,
                 request.getEnabled() != null ? request.getEnabled() : true
         );
+        user.setKeycloakId(keycloakId);
+        user.setGithubUsername(request.getGithubUsername());
         user.setGroups(new HashSet<>());
 
         if (request.getGroup_name() != null && !request.getGroup_name().isEmpty()) {
@@ -97,10 +101,16 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Group not found"));
 
         try {
+            String githubUsername = user.getGithubUsername(); // Add this field to User entity
+            if (githubUsername == null || githubUsername.isEmpty()) {
+                throw new RuntimeException("User does not have an associated GitHub username");
+            }
+
             gitHubService.inviteUserToRepo(
                     group.getOrganization().getOrg_owner(),
                     group.getGroup_name(),
-                    user.getEmail()
+                    githubUsername,
+                    "push" // Or any other permission level you want to grant
             );
 
             user.getGroups().add(group);

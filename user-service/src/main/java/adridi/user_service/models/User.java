@@ -2,23 +2,20 @@ package adridi.user_service.Models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 @Table(name = "users_map")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String keycloakId;
     private String username;
     private String first_name;
@@ -27,6 +24,7 @@ public class User {
     private String password;
     private Boolean locked;
     private Boolean enabled;
+    private String githubUsername;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -34,11 +32,11 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    private Set<GroupRepo> groups = new HashSet<>();
+    private Set<GroupRepo> groups;
 
-    public User(String keycloakId, String username, String first_name, String last_name,
+    public User(Long id, String username, String first_name, String last_name,
                 String email, String password, Boolean locked, Boolean enabled) {
-        this.keycloakId = keycloakId;
+        this.id = id;
         this.username = username;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -46,5 +44,6 @@ public class User {
         this.password = password;
         this.locked = locked;
         this.enabled = enabled;
+        this.groups = null;
     }
 }
