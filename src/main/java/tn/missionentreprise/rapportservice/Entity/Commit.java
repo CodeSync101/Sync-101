@@ -2,6 +2,11 @@ package tn.missionentreprise.rapportservice.Entity;
 
 import jakarta.persistence.*;
 
+// Utilise l’un de ces deux selon ton code :
+import java.sql.Timestamp; // Si tu utilises SQL types
+// ou mieux :
+import java.time.LocalDateTime; // Si tu utilises JPA moderne avec LocalDateTime
+
 import java.util.Date;
 
 @Entity
@@ -15,14 +20,14 @@ public class Commit {
     private String message;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_commit")
-    private Date dateCommit;
+    private Timestamp dateCommit;
     private int fichiersChanges;
 
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
 
-    public Commit(Long id, String sha, String message, Date dateCommit, int fichiersChanges, Utilisateur utilisateur) {
+    public Commit(Long id, String sha, String message, Timestamp dateCommit, int fichiersChanges, Utilisateur utilisateur) {
         this.id = id;
         this.sha = sha;
         this.message = message;
@@ -59,11 +64,11 @@ public class Commit {
         this.message = message;
     }
 
-    public Date getDateCommit() {
+    public Timestamp getDateCommit() {
         return dateCommit;
     }
 
-    public void setDateCommit(Date dateCommit) {
+    public void setDateCommit(Timestamp dateCommit) {
         this.dateCommit = dateCommit;
     }
 

@@ -13,11 +13,21 @@ public class Branch {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "commit_id")
-    private Long commitId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "commit_id", referencedColumnName = "id")
+    private Commit commit;
 
     @Column(name = "protected")
     private Boolean isProtected;
+
+    // Constructeurs
+    public Branch() {}
+
+    public Branch(String name, Commit commit, Boolean isProtected) {
+        this.name = name;
+        this.commit = commit;
+        this.isProtected = isProtected;
+    }
 
     // Getters et Setters
     public Long getId() {
@@ -36,12 +46,12 @@ public class Branch {
         this.name = name;
     }
 
-    public Long getCommitId() {
-        return commitId;
+    public Commit getCommit() {
+        return commit;
     }
 
-    public void setCommitId(Long commitId) {
-        this.commitId = commitId;
+    public void setCommit(Commit commit) {
+        this.commit = commit;
     }
 
     public Boolean getProtected() {
