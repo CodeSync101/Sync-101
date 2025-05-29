@@ -55,7 +55,7 @@ public class ReportingController {
     @GetMapping("/contribution-summary")
     public ResponseEntity<ContributionSummaryDTO> getContributionSummary() {
         try {
-            int topLimit = 6 ;
+            int topLimit = 5 ;
             ContributionSummaryDTO summary = commitService.getContributionSummary(topLimit);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {

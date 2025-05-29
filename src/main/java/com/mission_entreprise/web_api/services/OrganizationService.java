@@ -6,7 +6,9 @@ import com.mission_entreprise.web_api.repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class OrganizationService {
     }
 
 
-
+    public List<String> listOrganizations() {
+        return organizationRepository.findAll().stream().map(GithubOrganization::getLogin).collect(Collectors.toList());
+    }
 
 }
