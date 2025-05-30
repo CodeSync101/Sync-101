@@ -34,7 +34,6 @@ public class GitHubServiceImpl implements GitHubService {
         headers.set("Accept", "application/vnd.github+json");
         headers.set("X-GitHub-Api-Version", "2022-11-28");
 
-        // Create request body with permission
         String requestBody = String.format("{\"permission\":\"%s\"}", permission);
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
