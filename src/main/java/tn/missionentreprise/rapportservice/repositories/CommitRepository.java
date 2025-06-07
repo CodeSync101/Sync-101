@@ -22,4 +22,6 @@ public interface CommitRepository extends JpaRepository<Commit, Long> {
     List<Object[]> countCommitsByDate();
 
 
+
+
 }

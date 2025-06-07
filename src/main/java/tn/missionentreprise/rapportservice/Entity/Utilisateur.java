@@ -16,6 +16,18 @@ public class Utilisateur {
     @Column(name = "prenom")
     private String prenom;
 
+    @Column(name = "login", unique = true)
+    private String login;
+
+    // Constructeurs
+    public Utilisateur() {}
+
+    public Utilisateur(String nom, String prenom, String login) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.login = login;
+    }
+
     // Getters et Setters
     public Long getId() {
         return id;
@@ -39,5 +51,13 @@ public class Utilisateur {
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }
