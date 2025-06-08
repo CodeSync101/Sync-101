@@ -31,4 +31,5 @@ public class Commit {
 
     private String branchName;
 
+    private String organization;
 }

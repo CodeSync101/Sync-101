@@ -35,8 +35,8 @@ public class BranchService {
 
     }
 
-    public long getDistinctBranchCount() {
-        return branchRepository.countDistinctByName();
+    public long getDistinctBranchCount(String organization) {
+        return branchRepository.countDistinctByName(organization);
     }
 
 

@@ -3,6 +3,7 @@ package com.mission_entreprise.web_api.utils;
 import com.mission_entreprise.web_api.dtos.BranchResponse;
 import com.mission_entreprise.web_api.dtos.CommitResponse;
 import com.mission_entreprise.web_api.dtos.PullResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 @Service
+@Slf4j
 public class GitHubApiClient {
 
     @Value("${github.token}")
@@ -65,7 +67,7 @@ public class GitHubApiClient {
     }
     public CommitResponse[] fetchCommitsByOrgAndRepoAndBranch(String org, String repo, String branch) {
         String url = String.format("https://api.github.com/repos/%s/%s/commits?sha=%s", org, repo, branch);
-
+        log.info(url);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(githubToken);
         headers.set("Accept", "application/vnd.github.v3+json");

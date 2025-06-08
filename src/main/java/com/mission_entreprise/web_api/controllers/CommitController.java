@@ -48,16 +48,16 @@ public class CommitController {
     }
 
     @GetMapping("/total-count")
-    public ResponseEntity<Map<String, Object>> getTotalCommitsCount() {
-        long count = commitService.getTotalCommitsCount();
+    public ResponseEntity<Map<String, Object>> getTotalCommitsCount(@RequestParam String organization) {
+        long count = commitService.getTotalCommitsCount(organization);
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("totalCommits", count);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/distinct-authors")
-    public ResponseEntity<Map<String, Object>> getDistinctCommitAuthors() {
-        Map<String, Object> authorsWithCount = commitService.getDistinctAuthorsWithCount();
+    public ResponseEntity<Map<String, Object>> getDistinctCommitAuthors(@RequestParam String organization) {
+        Map<String, Object> authorsWithCount = commitService.getDistinctAuthorsWithCount(organization);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
@@ -67,8 +67,8 @@ public class CommitController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/distinct-repositories")
-    public ResponseEntity<Map<String, Object>> getDistinctRepositories() {
-        Map<String, Object> repoData = commitService.getDistinctRepositoriesWithCount();
+    public ResponseEntity<Map<String, Object>> getDistinctRepositories(@RequestParam String organization) {
+        Map<String, Object> repoData = commitService.getDistinctRepositoriesWithCount(organization);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
@@ -81,15 +81,17 @@ public class CommitController {
     public ResponseEntity<Map<String, Long>> getCommitCountsByDateRange(
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam(required = false, defaultValue = "") String author) {
+            @RequestParam(required = false, defaultValue = "") String author,
+            @RequestParam String organization ) {
 
         try {
-            Map<String, Long> commitCounts = commitService.getCommitCountsByDateRange(startDate, endDate, author);
+            Map<String, Long> commitCounts = commitService.getCommitCountsByDateRange(startDate, endDate, author, organization);
             return ResponseEntity.ok(commitCounts);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+
 
 
 }

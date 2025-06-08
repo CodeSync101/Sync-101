@@ -11,6 +11,7 @@ public class CommitResponse {
     private CommitDetails commit;
     @JsonProperty("html_url")
     private String htmlUrl;
+    private String organization ;
     @Getter
     @Setter
     public static class CommitDetails {

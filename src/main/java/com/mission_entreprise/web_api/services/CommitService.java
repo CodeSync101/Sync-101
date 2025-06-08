@@ -23,22 +23,23 @@ public class CommitService {
     private final CommitRepository commitRepository;
 
 
-    public List<EventAnalyticsDTO> getAllCommitsAnalyticsLatest() {
+    public List<EventAnalyticsDTO> getAllCommitsAnalyticsLatest(String organization) {
         Pageable topFive = PageRequest.of(0, 50);
-        return commitRepository.findEventsDetailsCommit(topFive);
+        return commitRepository.findEventsDetailsCommit(organization, topFive);
     }
-    public List<PushEventDTO> getAllPushAnalyticsLatest() {
+    public List<PushEventDTO> getAllPushAnalyticsLatest(String organization) {
         Pageable topFive = PageRequest.of(0, 50);
-        return commitRepository.findEventsDetailsPush(topFive);
+
+        return commitRepository.findEventsDetailsPush(organization,topFive);
     }
     public List<PullMergeDTO> getAllPullAnalyticsLatest() {
         Pageable topFive = PageRequest.of(0, 50);
         return commitRepository.findEventsDetailsPulls(topFive);
     }
 
-    public ContributionSummaryDTO getContributionSummary(int topLimit) {
-        List<EventAnalyticsDTO> commits = getAllCommitsAnalyticsLatest();
-        List<PushEventDTO> pushes = getAllPushAnalyticsLatest();
+    public ContributionSummaryDTO getContributionSummary(int topLimit,String organization) {
+        List<EventAnalyticsDTO> commits = getAllCommitsAnalyticsLatest(organization);
+        List<PushEventDTO> pushes = getAllPushAnalyticsLatest(organization);
         List<PullMergeDTO> pulls = getAllPullAnalyticsLatest();
 
         Map<String, Integer> contributionsByAuthor = new HashMap<>();
@@ -96,26 +97,27 @@ public class CommitService {
                     commit.setRepositoryName(repoName);
                     commit.setBranchName(branch);
                     commit.setHtmlUrl(commitResponse.getHtmlUrl());
+                    commit.setOrganization(orgName);
                     commitRepository.save(commit);
                 }
             }
         }
     }
-    public long getTotalCommitsCount() {
-        return commitRepository.count();
+    public long getTotalCommitsCount(String organization) {
+        return commitRepository.getCommitByOrganizationCount(organization);
     }
-    public Map<String, Object> getDistinctRepositoriesWithCount() {
-        List<String> repositories = commitRepository.findDistinctSanitizedRepositoryNames();
-        Long count = commitRepository.countDistinctSanitizedRepositories();
+    public Map<String, Object> getDistinctRepositoriesWithCount(String organization) {
+        List<String> repositories = commitRepository.findDistinctSanitizedRepositoryNames(organization);
+        Long count = commitRepository.countDistinctSanitizedRepositories(organization);
 
         Map<String, Object> result = new HashMap<>();
         result.put("repositories", repositories);
         result.put("repositoryCount", count);
         return result;
     }
-    public Map<String, Object> getDistinctAuthorsWithCount() {
-        List<String> authors = commitRepository.findDistinctAuthors();
-        Long authorsCount = commitRepository.countDistinctAuthors();
+    public Map<String, Object> getDistinctAuthorsWithCount(String organization) {
+        List<String> authors = commitRepository.findDistinctAuthors(organization);
+        Long authorsCount = commitRepository.countDistinctAuthors(organization);
 
         Map<String, Object> result = new HashMap<>();
         result.put("authors", authors);
@@ -123,7 +125,7 @@ public class CommitService {
 
         return result;
     }
-    public Map<String, Long> getCommitCountsByDateRange(String startDate, String endDate, String author) {
+    public Map<String, Long> getCommitCountsByDateRange(String startDate, String endDate, String author,String organization) {
         if (!startDate.matches("\\d{4}-\\d{2}-\\d{2}") || !endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
             throw new IllegalArgumentException("Date format must be yyyy-MM-dd");
         }
@@ -133,7 +135,8 @@ public class CommitService {
         List<Object[]> results = commitRepository.countCommitsByDateBetweenAndAuthor(
                 formattedStartDate,
                 formattedEndDate,
-                author.isEmpty() ? null : author
+                author.isEmpty() ? null : author,
+                organization
         );
 
         Map<String, Long> commitCountsByDate = new HashMap<>();

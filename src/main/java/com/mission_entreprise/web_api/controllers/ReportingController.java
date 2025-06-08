@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,9 +24,9 @@ public class ReportingController {
 
 
     @GetMapping("/get-latest-commits")
-    public ResponseEntity<List<EventAnalyticsDTO>> getLatestCommits() {
+    public ResponseEntity<List<EventAnalyticsDTO>> getLatestCommits(@RequestParam String organization) {
         try {
-            List<EventAnalyticsDTO> commits = commitService.getAllCommitsAnalyticsLatest();
+            List<EventAnalyticsDTO> commits = commitService.getAllCommitsAnalyticsLatest(organization);
             return ResponseEntity.ok(commits);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -33,15 +34,14 @@ public class ReportingController {
     }
 
     @GetMapping("/get-latest-pushs")
-    public ResponseEntity<List<PushEventDTO>> getLatestPush() {
+    public ResponseEntity<List<PushEventDTO>> getLatestPush(@RequestParam String organization) {
         try {
-            List<PushEventDTO> pushes = commitService.getAllPushAnalyticsLatest();
+            List<PushEventDTO> pushes = commitService.getAllPushAnalyticsLatest(organization);
             return ResponseEntity.ok(pushes);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @GetMapping("/get-latest-pulls")
     public ResponseEntity<List<PullMergeDTO>> getLatestPulls() {
         try {
@@ -51,12 +51,11 @@ public class ReportingController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @GetMapping("/contribution-summary")
-    public ResponseEntity<ContributionSummaryDTO> getContributionSummary() {
+    public ResponseEntity<ContributionSummaryDTO> getContributionSummary(@RequestParam String organization) {
         try {
             int topLimit = 5 ;
-            ContributionSummaryDTO summary = commitService.getContributionSummary(topLimit);
+            ContributionSummaryDTO summary = commitService.getContributionSummary(topLimit,organization);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

@@ -33,10 +33,9 @@ public class BranchController {
             return ResponseEntity.status(500).body(response);
         }
     }
-
     @GetMapping("/distinct-count")
-    public ResponseEntity<Map<String, Object>> getDistinctBranchCount() {
-        long count = branchService.getDistinctBranchCount();
+    public ResponseEntity<Map<String, Object>> getDistinctBranchCount(@RequestParam String organization) {
+        long count = branchService.getDistinctBranchCount(organization);
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("distinctBranchCount", count);

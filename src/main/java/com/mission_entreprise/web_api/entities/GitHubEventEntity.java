@@ -17,6 +17,9 @@ public class GitHubEventEntity {
     @Column(nullable = false)
     private String type;
 
+    @Column(name = "organization")
+    private String organization;
+
     @Column(name = "actor_login")
     private String actorLogin;
 
@@ -38,7 +41,15 @@ public class GitHubEventEntity {
     // Default constructor
     public GitHubEventEntity() {
     }
-
+    @PrePersist
+    @PreUpdate
+    private void assignOrganization() {
+        if (repoName != null && repoName.contains("/")) {
+            this.organization = repoName.split("/")[0].trim();
+        } else {
+            this.organization = null;
+        }
+    }
     // Constructor from DTO
     public GitHubEventEntity(String eventId, String type, String actorLogin, String repoName,
                              String authorName, String commitMessage, ZonedDateTime createdAt) {
