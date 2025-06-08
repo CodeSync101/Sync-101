@@ -22,4 +22,5 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
             "GROUP BY DATE(c.date_commit) " +
             "ORDER BY DATE(c.date_commit)", nativeQuery = true)
     List<Object[]> countBranchesByDate();
+
 }

@@ -19,43 +19,28 @@ public class ChatbotService {
     @Autowired private UtilisateurRepository utilisateurRepository;
     @Autowired private OpenRouterService openRouterService;
 
-    // Map pour normaliser les mots-clés et gérer synonymes/fautes simples
     private static final Map<String, String> keywordMap = Map.ofEntries(
-            Map.entry("commit", "commit"),
-            Map.entry("commits", "commit"),
-            Map.entry("commité", "commit"),
-            Map.entry("ticket", "ticket"),
-            Map.entry("tickets", "ticket"),
-            Map.entry("branche", "branch"),
-            Map.entry("branches", "branch"),
-            Map.entry("pr", "pull request"),
-            Map.entry("pull request", "pull request"),
-            Map.entry("issue", "issue"),
-            Map.entry("issues", "issue"),
-            Map.entry("utilisateur", "user"),
-            Map.entry("utilisateurs", "user"),
-            Map.entry("nombre", "count"),
-            Map.entry("combien", "count"),
-            Map.entry("statut", "status"),
-            Map.entry("statuts", "status"),
+            Map.entry("commit", "commit"), Map.entry("commits", "commit"), Map.entry("commité", "commit"),
+            Map.entry("ticket", "ticket"), Map.entry("tickets", "ticket"),
+            Map.entry("branche", "branch"), Map.entry("branches", "branch"),
+            Map.entry("pr", "pull request"), Map.entry("pull request", "pull request"),
+            Map.entry("pull requests", "pull request"),
+            Map.entry("issue", "issue"), Map.entry("issues", "issue"),
+            Map.entry("utilisateur", "user"), Map.entry("utilisateurs", "user"),
+            Map.entry("étudiant", "user"), Map.entry("étudiants", "user"),
+            Map.entry("nombre", "count"), Map.entry("combien", "count"),
+            Map.entry("statut", "status"), Map.entry("statuts", "status"),
             Map.entry("date", "date"),
-            Map.entry("bonjour", "hello"),
-            Map.entry("salut", "hello"),
-            Map.entry("merci", "thanks")
+            Map.entry("bonjour", "hello"), Map.entry("salut", "hello"),
+            Map.entry("merci", "thanks"), Map.entry("remerciement", "thanks"),
+            Map.entry("bilan", "summary"), Map.entry("statistiques", "summary"),
+            Map.entry("total", "count")
     );
 
-    // Pattern date ISO simple YYYY-MM-DD
     private static final Pattern datePattern = Pattern.compile("\\b(\\d{4}-\\d{2}-\\d{2})\\b");
 
-    /**
-     * Point d'entrée pour traiter la requête utilisateur,
-     * supporte plusieurs questions séparées par "et" ou ",".
-     */
     public String processPrompt(String userPrompt) {
-        // Normaliser la requête
         String normalizedPrompt = normalizePrompt(userPrompt.toLowerCase());
-
-        // Split sur "et" ou "," pour gérer plusieurs questions
         String[] subPrompts = normalizedPrompt.split("\\bet\\b|,");
         StringBuilder combinedResponse = new StringBuilder();
 
@@ -72,9 +57,6 @@ public class ChatbotService {
         return combinedResponse.toString().trim();
     }
 
-    /**
-     * Remplace chaque mot par son mot clé standardisé, sinon laisse tel quel.
-     */
     private String normalizePrompt(String prompt) {
         String[] words = prompt.split("\\W+");
         StringBuilder normalized = new StringBuilder();
@@ -84,9 +66,6 @@ public class ChatbotService {
         return normalized.toString().trim();
     }
 
-    /**
-     * Extraction simple d'une date YYYY-MM-DD dans la chaîne.
-     */
     private String extractDate(String prompt) {
         Matcher matcher = datePattern.matcher(prompt);
         if (matcher.find()) {
@@ -95,71 +74,40 @@ public class ChatbotService {
         return null;
     }
 
-    /**
-     * Analyse le prompt (normalisé) pour retourner les données brutes.
-     */
     private String processRawPrompt(String prompt) {
-        // Gestion salutations + remerciements simple multilingue
-        if (prompt.matches(".*\\b(hello|hi|hello|thanks|thanks|thanks|hello|salut|bonjour|merci|thanks)\\b.*")) {
+        if (prompt.matches(".*\\b(hello|hi|thanks|salut|bonjour|merci)\\b.*")) {
             return generateGreetingResponse(prompt);
         }
 
-        // Commits par utilisateur
         if (prompt.contains("commit") && prompt.contains("user")) {
             List<Object[]> results = commitRepository.countCommitsByEtudiant();
             return formatCommitResults(results);
-
-            // Commits par date, avec ou sans date spécifique
         } else if (prompt.contains("commit") && prompt.contains("date")) {
             String date = extractDate(prompt);
-            List<Object[]> results;
-            if (date != null) {
-                results = commitRepository.countCommitsByDate(); // méthode à créer dans repo
-                if (results.isEmpty()) return "Aucun commit trouvé pour la date " + date + ".";
-            } else {
-                results = commitRepository.countCommitsByDate();
-            }
+            List<Object[]> results = commitRepository.countCommitsByDate();
+            if (date != null && results.isEmpty()) return "Aucun commit trouvé pour la date " + date + ".";
             return formatCommitByDateResults(results);
-
-            // Tickets par statut
         } else if (prompt.contains("ticket") && prompt.contains("status")) {
             List<Object[]> results = ticketRepository.countTicketsByStatus();
             return formatTicketResults(results);
-
-            // Branches par date
         } else if (prompt.contains("branch") && prompt.contains("date")) {
             String date = extractDate(prompt);
-            List<Object[]> results;
-            if (date != null) {
-                results = branchRepository.countBranchesByDate(); // méthode à créer dans repo
-                if (results.isEmpty()) return "Aucune branche trouvée pour la date " + date + ".";
-            } else {
-                results = branchRepository.countBranchesByDate();
-            }
+            List<Object[]> results = branchRepository.countBranchesByDate();
+            if (date != null && results.isEmpty()) return "Aucune branche trouvée pour la date " + date + ".";
             return formatBranchResults(results);
-
-            // Branches avec utilisateurs
         } else if (prompt.contains("branch") && prompt.contains("user")) {
             List<Object[]> results = branchRepository.findBranchesWithUserDetails();
             return formatBranchUserResults(results);
-
-            // Pull requests total
         } else if (prompt.contains("pull request")) {
             long count = pullRequestRepository.count();
             return "Le nombre total de pull requests est : " + count;
-
-            // Issues total
         } else if (prompt.contains("issue")) {
             long count = issueRepository.count();
             return "Le nombre total d’issues est : " + count;
-
-            // Nombre d'utilisateurs
         } else if (prompt.contains("user") && prompt.contains("count")) {
             long count = utilisateurRepository.count();
             return "Le nombre total d'utilisateurs enregistrés est : " + count;
-
-            // Statistiques globales
-        } else if (prompt.contains("statistiques") || prompt.contains("bilan")) {
+        } else if (prompt.contains("summary")) {
             long commits = commitRepository.count();
             long branches = branchRepository.count();
             long tickets = ticketRepository.count();
@@ -175,15 +123,11 @@ public class ChatbotService {
                             "- Issues : %d",
                     commits, branches, tickets, prs, issues
             );
-
         } else {
-            return "Désolé, je ne comprends pas votre demande. Essayez par exemple « commits par utilisateur », « tickets par statut », ou « branches par date ». ";
+            return "Désolé, je ne comprends pas votre demande. Essayez par exemple « commits par utilisateur », « tickets par statut », ou « branches par date ».";
         }
     }
 
-    /**
-     * Réponses de base pour les salutations, en français et anglais.
-     */
     private String generateGreetingResponse(String prompt) {
         if (prompt.contains("hello") || prompt.contains("hi")) {
             if (prompt.contains("thank") || prompt.contains("thanks")) {
@@ -197,8 +141,6 @@ public class ChatbotService {
             return "Bonjour ! Comment puis-je vous aider aujourd'hui ?";
         }
     }
-
-    // Formattage des résultats - adapte selon structure exacte renvoyée par les requêtes JPA
 
     private String formatCommitResults(List<Object[]> results) {
         StringBuilder response = new StringBuilder("Voici le nombre de commits par utilisateur :\n");
