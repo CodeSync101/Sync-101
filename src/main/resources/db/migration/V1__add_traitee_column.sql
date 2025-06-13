@@ -1,0 +1,1 @@
+ALTER TABLE reclamation ADD COLUMN traitee BOOLEAN DEFAULT FALSE; 

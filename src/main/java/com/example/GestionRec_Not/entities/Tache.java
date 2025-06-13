@@ -3,91 +3,82 @@ package com.example.GestionRec_Not.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
-import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-public class Reclamation {
+public class Tache {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     private String titre;
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    private Statut statut;
-
-    @Enumerated(EnumType.STRING)
-    private Priorite priorite;
-
-    private LocalDate dateCreation;
-
-    private boolean traitee;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Userr user;
+    private LocalDateTime dateCreation;
+    private LocalDateTime dateEcheance;
+    private Boolean terminee = false;
     
     @ManyToOne
     @JoinColumn(name = "matiere_id")
     private Matiere matiere;
-
+    
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Userr user;
+    
+    // Constructeur par défaut
+    public Tache() {
+        this.dateCreation = LocalDateTime.now();
+    }
+    
+    // Getters et Setters
     public Long getId() {
         return id;
     }
-
+    
     public void setId(Long id) {
         this.id = id;
     }
-
+    
     public String getTitre() {
         return titre;
     }
-
+    
     public void setTitre(String titre) {
         this.titre = titre;
     }
-
+    
     public String getDescription() {
         return description;
     }
-
+    
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public Statut getStatut() {
-        return statut;
-    }
-
-    public void setStatut(Statut statut) {
-        this.statut = statut;
-    }
-
-    public Priorite getPriorite() {
-        return priorite;
-    }
-
-    public void setPriorite(Priorite priorite) {
-        this.priorite = priorite;
-    }
-
-    public LocalDate getDateCreation() {
+    
+    public LocalDateTime getDateCreation() {
         return dateCreation;
     }
-
-    public void setDateCreation(LocalDate dateCreation) {
+    
+    public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
-
-    public Userr getUser() {
-        return user;
+    
+    public LocalDateTime getDateEcheance() {
+        return dateEcheance;
     }
-
-    public void setUser(Userr user) {
-        this.user = user;
+    
+    public void setDateEcheance(LocalDateTime dateEcheance) {
+        this.dateEcheance = dateEcheance;
+    }
+    
+    public Boolean getTerminee() {
+        return terminee;
+    }
+    
+    public void setTerminee(Boolean terminee) {
+        this.terminee = terminee;
     }
     
     public Matiere getMatiere() {
@@ -97,13 +88,12 @@ public class Reclamation {
     public void setMatiere(Matiere matiere) {
         this.matiere = matiere;
     }
-
-    public boolean isTraitee() {
-        return traitee;
+    
+    public Userr getUser() {
+        return user;
     }
-
-    public void setTraitee(boolean traitee) {
-        this.traitee = traitee;
+    
+    public void setUser(Userr user) {
+        this.user = user;
     }
-}
-
+} 
