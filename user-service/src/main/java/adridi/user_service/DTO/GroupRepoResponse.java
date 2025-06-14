@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,4 +15,5 @@ public class GroupRepoResponse {
     private String group_description;
     private String group_type;
     private OrganizationDTO organization;
+    private Set<UserDTO> teachers;
 }

@@ -1,9 +1,11 @@
 package adridi.user_service.DTO;
 
+import adridi.user_service.Models.Role;
 import lombok.Data;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
 import java.util.Set;
 
 @Data
@@ -20,5 +22,8 @@ public class UserResponse {
     private Boolean locked;
     private Boolean enabled;
     private String githubUsername;
+    private Set<Role> roles;
     private Set<GroupRepoDTO> groups;
+    private Set<GroupRepoDTO> teacherGroups;
+    private Set<OrganizationDTO> managedOrganizations;
 }

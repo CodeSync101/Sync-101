@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.tags.Tag;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,7 +35,8 @@ public class OpenAPIConfig {
                         new Tag().name("Users").description("User management operations"),
                         new Tag().name("Organizations").description("Organization management operations"),
                         new Tag().name("Classrooms").description("Classroom management operations"),
-                        new Tag().name("Groups").description("Group management operations")
+                        new Tag().name("Groups").description("Group management operations"),
+                        new Tag().name("Admin").description("Admin operations for user assignments")
                 ));
     }
 }

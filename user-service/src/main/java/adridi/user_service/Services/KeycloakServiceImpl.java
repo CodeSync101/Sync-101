@@ -1,27 +1,33 @@
 package adridi.user_service.Services;
 
 import adridi.user_service.DTO.UserRequest;
-import lombok.RequiredArgsConstructor;
+import adridi.user_service.Models.Role;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import javax.ws.rs.core.Response;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class KeycloakServiceImpl implements KeycloakService {
 
-    @Value("${keycloak.realm}")
-    private String realm;
-
     @Value("${keycloak.server-url}")
     private String serverUrl;
+
+    @Value("${keycloak.realm}")
+    private String realm;
 
     @Value("${keycloak.admin-client.username}")
     private String adminUsername;
@@ -30,19 +36,27 @@ public class KeycloakServiceImpl implements KeycloakService {
     private String adminPassword;
 
     @Value("${keycloak.admin-client.client-id}")
-    private String adminClientId;
+    private String clientId;
+
+    @Value("${keycloak.admin-client.grant-type}")
+    private String grantType;
 
     @Override
     public String createKeycloakUser(UserRequest userRequest) {
+        Keycloak keycloak = null;
         try {
-            Keycloak keycloak = KeycloakBuilder.builder()
+            // Build Keycloak client with admin credentials
+            keycloak = KeycloakBuilder.builder()
                     .serverUrl(serverUrl)
-                    .realm("master")
+                    .realm("master") // Admin credentials are in 'master' realm
+                    .grantType(grantType)
+                    .clientId(clientId)
                     .username(adminUsername)
                     .password(adminPassword)
-                    .clientId(adminClientId)
                     .build();
+            log.debug("Keycloak client initialized for admin user: {}", adminUsername);
 
+            // Create user in 'codesync-auth' realm
             UserRepresentation user = new UserRepresentation();
             user.setEnabled(true);
             user.setUsername(userRequest.getUsername());
@@ -51,10 +65,11 @@ public class KeycloakServiceImpl implements KeycloakService {
             user.setEmail(userRequest.getEmail());
             user.setEmailVerified(true);
 
+            String randomPassword = generateRandomPassword(12);
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(userRequest.getPassword());
-            credential.setTemporary(false);
+            credential.setValue(randomPassword);
+            credential.setTemporary(true);
             user.setCredentials(Collections.singletonList(credential));
 
             Response response = keycloak.realm(realm).users().create(user);
@@ -70,9 +85,14 @@ public class KeycloakServiceImpl implements KeycloakService {
             if (locationHeader == null) {
                 throw new RuntimeException("No Location header in Keycloak response");
             }
-
             String userId = locationHeader.substring(locationHeader.lastIndexOf("/") + 1);
-            log.debug("Created Keycloak user with ID: {}", userId);
+            log.debug("Created Keycloak user with ID: {}, temporary password: {}", userId, randomPassword);
+
+            if (userRequest.getRoles() != null && !userRequest.getRoles().isEmpty()) {
+                List<RoleRepresentation> roleRepresentations = getRoleRepresentations(keycloak, userRequest.getRoles());
+                keycloak.realm(realm).users().get(userId).roles().realmLevel().add(roleRepresentations);
+                log.debug("Assigned roles {} to user {}", userRequest.getRoles(), userId);
+            }
 
             response.close();
             return userId;
@@ -80,6 +100,25 @@ public class KeycloakServiceImpl implements KeycloakService {
         } catch (Exception e) {
             log.error("Error creating Keycloak user: {}", e.getMessage());
             throw new RuntimeException("Failed to create Keycloak user: " + e.getMessage());
+        } finally {
+            if (keycloak != null) {
+                keycloak.close();
+                log.debug("Keycloak client closed");
+            }
         }
+    }
+
+    private List<RoleRepresentation> getRoleRepresentations(Keycloak keycloak, Set<Role> roles) {
+        return roles.stream()
+                .map(Role::name)
+                .map(role -> keycloak.realm(realm).roles().get(role).toRepresentation())
+                .collect(Collectors.toList());
+    }
+
+    private String generateRandomPassword(int length) {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[length];
+        random.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 }

@@ -7,6 +7,7 @@ import adridi.user_service.Models.Organization;
 import adridi.user_service.Repositories.GroupRepoRepository;
 import adridi.user_service.Repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,9 +15,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GroupRepoServiceImpl implements GroupRepoService {
 
     private final GroupRepoRepository groupRepoRepository;
@@ -57,6 +61,7 @@ public class GroupRepoServiceImpl implements GroupRepoService {
         return groupRepoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Group not found"));
     }
+
     private void createGitHubRepository(GroupRepoRequest request) {
         GitHubRepoRequest gitHubRequest = new GitHubRepoRequest(
                 request.getGroup_name(),
@@ -74,7 +79,9 @@ public class GroupRepoServiceImpl implements GroupRepoService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
+            log.error("Failed to create GitHub repository: {} - {}", response.getStatusCode(), response.getBody());
             throw new RuntimeException("Failed to create GitHub repository: " + response.getStatusCode() + " - " + response.getBody());
         }
+        log.debug("Created GitHub repository: {}", request.getGroup_name());
     }
 }

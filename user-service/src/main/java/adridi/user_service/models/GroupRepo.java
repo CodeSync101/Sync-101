@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -34,10 +32,15 @@ public class GroupRepo {
     @ManyToMany(mappedBy = "groups")
     private Set<User> users = new HashSet<>();
 
+    @ManyToMany(mappedBy = "teacherGroups")
+    private Set<User> teachers = new HashSet<>();
+
     public GroupRepo(String group_name, String group_description, String group_type) {
         this.group_name = group_name;
         this.group_description = group_description;
         this.group_type = group_type;
+        this.users = new HashSet<>();
+        this.teachers = new HashSet<>();
     }
 
     public GroupRepo(String group_name, String group_description, String group_type, Organization organization) {
@@ -45,5 +48,7 @@ public class GroupRepo {
         this.group_description = group_description;
         this.group_type = group_type;
         this.organization = organization;
+        this.users = new HashSet<>();
+        this.teachers = new HashSet<>();
     }
 }

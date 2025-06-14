@@ -1,16 +1,19 @@
 package adridi.user_service.Services;
 
-import adridi.user_service.Models.ClassRoom;
-import adridi.user_service.Repositories.OrganizationRepository;
 import adridi.user_service.DTO.OrganizationRequest;
+import adridi.user_service.Models.ClassRoom;
 import adridi.user_service.Models.Organization;
+import adridi.user_service.Repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationRepository organizationRepository;
     private final ClassRoomService classRoomService;
@@ -37,7 +40,6 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
     }
 
-
     @Override
     @Transactional
     public Organization assignToClassRoom(Long orgId, Long classRoomId) {
@@ -46,7 +48,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         ClassRoom classRoom = classRoomService.getClassRoomById(classRoomId);
         organization.setClassRoom(classRoom);
+        classRoom.getOrganizations().add(organization);
 
+        log.debug("Assigned organization {} to classroom {}", orgId, classRoomId);
         return organizationRepository.save(organization);
     }
 }

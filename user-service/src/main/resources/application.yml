@@ -22,6 +22,9 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/codesync-auth
           jwk-set-uri: http://localhost:8080/realms/codesync-auth/protocol/openid-connect/certs
+  output:
+    ansi:
+      enabled: always
 
 eureka:
   client:
@@ -41,12 +44,11 @@ keycloak:
 github:
   api:
     url: https://api.github.com
-    token:
 #Add A github persone access token here
 
 springdoc:
   api-docs:
-    path: /api-docs
+    path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
@@ -55,4 +57,9 @@ springdoc:
 logging:
   level:
     root: INFO
-    org.springframework: DEBUG
+    org.springframework:
+      web: DEBUG
+      security: DEBUG
+      orm: WARN
+      jdbc: WARN
+      context: WARN

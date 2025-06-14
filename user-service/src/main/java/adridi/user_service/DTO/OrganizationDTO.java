@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -18,4 +19,5 @@ public class OrganizationDTO {
     private String org_owner;
     private Long classRoomId;
     private List<GroupRepoDTO> groupRepos;
+    private Set<UserDTO> fieldManagers;
 }
