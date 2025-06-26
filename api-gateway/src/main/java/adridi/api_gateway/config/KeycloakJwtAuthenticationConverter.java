@@ -36,7 +36,7 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Mono<A
         var accountResource = (Map<String, List<String>>) resourceAccess.get("account");
         var roles = accountResource.get("roles");
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.replace("-", "_")))
+                .map(role -> new SimpleGrantedAuthority(role.replace("-", "_")))
                 .collect(toSet());
     }
 }
