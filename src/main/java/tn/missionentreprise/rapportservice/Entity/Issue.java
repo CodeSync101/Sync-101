@@ -17,6 +17,7 @@ public class Issue {
     @Column(name = "contenu")
     private String contenu;
 
+
     @Column(name = "etat")
     private String etat;
 
