@@ -1,4 +1,4 @@
-package adridi.user_service.Config;
+package adridi.user_service.config;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;

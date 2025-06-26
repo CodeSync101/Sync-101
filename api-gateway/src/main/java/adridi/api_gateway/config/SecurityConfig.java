@@ -18,8 +18,6 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/v1/users/**").permitAll()
-                        .pathMatchers("/eureka/**").permitAll()
-                        .pathMatchers("/actuator/**").permitAll()
                         .anyExchange().permitAll()
                 )
                 .build();

@@ -36,7 +36,7 @@ public class GroupRepoController {
 
     @Operation(summary = "Create group", description = "Creates new group")
     @PostMapping("/create-group")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<GroupRepoResponse> registerGroupRepo(@RequestBody GroupRepoRequest request) {
         GroupRepo groupRepo = groupRepoService.registerGroupRepo(request);
         return ResponseEntity.ok(mapToResponse(groupRepo));
@@ -44,7 +44,7 @@ public class GroupRepoController {
 
     @Operation(summary = "Get all groups", description = "Retrieves list of all groups")
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<List<GroupRepoResponse>> getAllGroups() {
         List<GroupRepo> groups = groupRepoService.getAllGroups();
         List<GroupRepoResponse> responses = groups.stream()
@@ -55,7 +55,7 @@ public class GroupRepoController {
 
     @Operation(summary = "Get group by ID", description = "Retrieves specific group")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<GroupRepoResponse> getGroupById(@PathVariable Long id) {
         GroupRepo group = groupRepoService.getGroupById(id);
         return ResponseEntity.ok(mapToResponse(group));

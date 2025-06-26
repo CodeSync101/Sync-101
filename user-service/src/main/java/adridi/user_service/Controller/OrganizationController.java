@@ -34,7 +34,7 @@ public class OrganizationController {
 
     @Operation(summary = "Create organization", description = "Creates new organization")
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<OrganizationDTO> registerOrganization(@RequestBody OrganizationRequest request) {
         Organization organization = organizationService.registerOrganization(request);
         return ResponseEntity.ok(mapToDto(organization));
@@ -42,7 +42,7 @@ public class OrganizationController {
 
     @Operation(summary = "Get all organizations", description = "Retrieves list of all organizations")
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'FIELD_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIELD_MANAGER')")
     public ResponseEntity<List<OrganizationDTO>> getAllOrganizations() {
         List<Organization> organizations = organizationService.getAllOrganizations();
         List<OrganizationDTO> dtos = organizations.stream()
@@ -53,7 +53,7 @@ public class OrganizationController {
 
     @Operation(summary = "Get organization by ID", description = "Retrieves specific organization")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FIELD_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIELD_MANAGER')")
     public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable Long id) {
         Organization organization = organizationService.getOrganizationById(id);
         return ResponseEntity.ok(mapToDto(organization));
@@ -61,7 +61,7 @@ public class OrganizationController {
 
     @Operation(summary = "Assign to classroom", description = "Associates organization with classroom")
     @PutMapping("/{orgId}/classroom/{classRoomId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<OrganizationDTO> assignToClassRoom(
             @PathVariable Long orgId,
             @PathVariable Long classRoomId) {

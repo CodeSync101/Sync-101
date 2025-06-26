@@ -44,7 +44,7 @@ keycloak:
 github:
   api:
     url: https://api.github.com
-#Add A github persone access token here
+    token: #GitHub Personal Access Token Here
 
 springdoc:
   api-docs:

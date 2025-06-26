@@ -32,6 +32,13 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
 
+    @Operation(summary = "Get current user", description = "Retrieves information of the currently authenticated user")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        User user = userService.getOrCreateUserFromJwt();
+        return ResponseEntity.ok(mapToResponse(user));
+    }
+
     @Operation(summary = "Register new user", description = "Creates a new user account")
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
@@ -41,7 +48,7 @@ public class UserController {
 
     @Operation(summary = "Get all users", description = "Retrieves list of all users")
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserResponse> responses = users.stream()
@@ -52,6 +59,7 @@ public class UserController {
 
     @Operation(summary = "Get user by ID", description = "Retrieves specific user by their ID")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(mapToResponse(user));
@@ -59,7 +67,7 @@ public class UserController {
 
     @Operation(summary = "Delete user", description = "Removes user from system")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -67,7 +75,7 @@ public class UserController {
 
     @Operation(summary = "Update user", description = "Updates user information")
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.attributes['sub']")
+    @PreAuthorize("hasAuthority('ADMIN') or #id == authentication.principal.attributes['sub']")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request) {
         User user = userService.updateUser(id, request);
         return ResponseEntity.ok(mapToResponse(user));
@@ -75,7 +83,7 @@ public class UserController {
 
     @Operation(summary = "Add user to group", description = "Assigns user to a specific group")
     @PostMapping("/{userId}/groups/{groupId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserResponse> addUserToGroup(
             @PathVariable Long userId,
             @PathVariable Long groupId) {
@@ -85,7 +93,7 @@ public class UserController {
 
     @Operation(summary = "Remove user from group", description = "Removes user from a specific group")
     @DeleteMapping("/{userId}/groups/{groupName}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserResponse> removeUserFromGroup(
             @PathVariable Long userId,
             @PathVariable String groupName) {
@@ -95,7 +103,7 @@ public class UserController {
 
     @Operation(summary = "Get teacher groups", description = "Retrieves groups the user is responsible for as a teacher")
     @GetMapping("/groups/teacher")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     public ResponseEntity<Set<GroupRepoDTO>> getTeacherGroups() {
         Set<GroupRepo> groups = userService.getTeacherGroups();
         Set<GroupRepoDTO> groupDTOs = groups.stream()
@@ -111,7 +119,7 @@ public class UserController {
 
     @Operation(summary = "Get managed organizations", description = "Retrieves organizations the user manages as a field manager")
     @GetMapping("/organizations/field-manager")
-    @PreAuthorize("hasRole('FIELD_MANAGER')")
+    @PreAuthorize("hasAuthority('FIELD_MANAGER')")
     public ResponseEntity<Set<OrganizationDTO>> getManagedOrganizations() {
         Set<Organization> organizations = userService.getManagedOrganizations();
         Set<OrganizationDTO> orgDTOs = organizations.stream()

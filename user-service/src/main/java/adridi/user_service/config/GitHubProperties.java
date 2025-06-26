@@ -1,4 +1,4 @@
-package adridi.user_service.Config;
+package adridi.user_service.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
