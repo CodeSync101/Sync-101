@@ -30,7 +30,7 @@ public class MatiereServiceImpl implements MatiereService {
         Matiere existingMatiere = matiereRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Matière non trouvée"));
         
-        existingMatiere.setNomMatiere(matiere.getNomMatiere());
+        existingMatiere.setLibelle(matiere.getLibelle());
         existingMatiere.setNoteMatiere(matiere.getNoteMatiere());
         
         // Si un étudiant est défini dans la matière mise à jour, le prendre en compte
@@ -59,7 +59,7 @@ public class MatiereServiceImpl implements MatiereService {
 
     @Override
     public Matiere getByNomMatiere(String nomMatiere) {
-        return matiereRepository.findByNomMatiere(nomMatiere);
+        return matiereRepository.findByLibelle(nomMatiere);
     }
     
     @Override

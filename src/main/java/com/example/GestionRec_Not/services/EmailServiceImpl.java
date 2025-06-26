@@ -88,4 +88,19 @@ public class EmailServiceImpl implements EmailService {
             logger.error("Erreur lors de l'envoi de l'email de notification de traitement à: {} ({})", studentName, to, e);
         }
     }
+
+    @Override
+    public void sendSimpleReclamationNotification(String to, String studentName, String reclamationTitle, String reclamationDescription) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(to);
+        message.setSubject("Réclamation envoyée");
+        message.setText("Bonjour " + studentName + ",\n\n" +
+                "Votre réclamation a bien été envoyée.\n\n" +
+                "Titre : " + reclamationTitle + "\n" +
+                "Description : " + reclamationDescription + "\n\n" +
+                "Nous vous répondrons dans les plus brefs délais.\n\n" +
+                "Cordialement,\nL'équipe Sync-101");
+        mailSender.send(message);
+    }
 } 

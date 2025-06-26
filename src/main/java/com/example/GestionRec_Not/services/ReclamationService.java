@@ -18,4 +18,5 @@ public interface ReclamationService {
     List<Reclamation> getReclamationsNonTraiteesParAnciennete();
     List<Reclamation> getReclamationsParMatiere(Long matiereId);
     Reclamation traiterReclamation(Long id);
+    Reclamation ajouterReclamationSimple(Reclamation reclamation, Long userId);
 }

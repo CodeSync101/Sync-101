@@ -95,7 +95,7 @@ public class ReclamationServiceImp implements ReclamationService {
                             professeur.getEmail(),
                             professeur.getNom(),
                             etudiant.getNom(),
-                            matiere.getNomMatiere(),
+                            matiere.getLibelle(),
                             matiere.getNoteMatiere(),
                             reclamation.getTitre(),
                             reclamation.getDescription()
@@ -225,7 +225,7 @@ public class ReclamationServiceImp implements ReclamationService {
                 emailService.sendReclamationTraiteeNotification(
                     etudiant.getEmail(),
                     etudiant.getNom(),
-                    reclamation.getMatiere().getNomMatiere(),
+                    reclamation.getMatiere().getLibelle(),
                     reclamation.getTitre()
                 );
             }
@@ -233,6 +233,26 @@ public class ReclamationServiceImp implements ReclamationService {
             logger.error("Erreur lors de l'envoi de la notification de traitement", e);
         }
         
+        return savedReclamation;
+    }
+
+    @Override
+    public Reclamation ajouterReclamationSimple(Reclamation reclamation, Long userId) {
+        Userr etudiant = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        reclamation.setUser(etudiant);
+        reclamation.setDateCreation(LocalDate.now());
+        reclamation.setPriorite(prioriteService.determinerPriorite(reclamation.getTitre(), reclamation.getDescription()));
+        reclamation.setStatut(Statut.EN_ATTENTE);
+        reclamation.setMatiere(null);
+        Reclamation savedReclamation = reclamationRepo.save(reclamation);
+        // Notification simple par email à l'étudiant
+        emailService.sendSimpleReclamationNotification(
+            etudiant.getEmail(),
+            etudiant.getNom(),
+            reclamation.getTitre(),
+            reclamation.getDescription()
+        );
         return savedReclamation;
     }
 }

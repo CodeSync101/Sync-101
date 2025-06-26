@@ -75,4 +75,9 @@ public class ReclamationController {
     public ResponseEntity<Reclamation> traiterReclamation(@PathVariable Long id) {
         return ResponseEntity.ok(reclamationService.traiterReclamation(id));
     }
+
+    @PostMapping("/add-simple/{userId}")
+    public Reclamation ajouterReclamationSimple(@RequestBody Reclamation reclamation, @PathVariable Long userId) {
+        return reclamationService.ajouterReclamationSimple(reclamation, userId);
+    }
 }

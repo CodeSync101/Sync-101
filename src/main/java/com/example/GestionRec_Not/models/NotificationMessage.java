@@ -21,6 +21,7 @@ public class NotificationMessage {
     private Priorite priorite;
     private LocalDateTime dateHeure;
     private String type; // "CREATION", "STATUT_CHANGE", etc.
+    private String libelle;
 
     // Constructeurs, getters et setters
     public Long getReclamationId() {
@@ -85,5 +86,13 @@ public class NotificationMessage {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getLibelle() {
+        return libelle;
+    }
+
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
     }
 } 

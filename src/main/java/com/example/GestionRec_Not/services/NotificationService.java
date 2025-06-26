@@ -62,7 +62,7 @@ public class NotificationService {
         notification.setReclamationId(reclamation.getId());
         notification.setMessage(message);
         notification.setNomUtilisateur(destinataire.getNom());
-        notification.setNomMatiere(reclamation.getMatiere().getNomMatiere());
+        notification.setNomMatiere(reclamation.getMatiere().getLibelle());
         notification.setNoteMatiere(reclamation.getMatiere().getNoteMatiere());
         notification.setPriorite(priorite);
         notification.setDateHeure(LocalDateTime.now());
@@ -85,14 +85,14 @@ public class NotificationService {
         Userr destinataire = reclamation.getUser();
         
         String message = "Le statut de votre réclamation #" + reclamation.getId() + 
-                         " concernant " + reclamation.getMatiere().getNomMatiere() + 
+                         " concernant " + reclamation.getMatiere().getLibelle() + 
                          " a été changé de " + ancienStatut + " à " + reclamation.getStatut();
         
         NotificationMessage notification = new NotificationMessage();
         notification.setReclamationId(reclamation.getId());
         notification.setMessage(message);
         notification.setNomUtilisateur(destinataire.getNom());
-        notification.setNomMatiere(reclamation.getMatiere().getNomMatiere());
+        notification.setNomMatiere(reclamation.getMatiere().getLibelle());
         notification.setNoteMatiere(reclamation.getMatiere().getNoteMatiere());
         notification.setPriorite(reclamation.getPriorite());
         notification.setDateHeure(LocalDateTime.now());
@@ -152,7 +152,7 @@ public class NotificationService {
                 notification.setReclamationId(reclamation.getId());
                 notification.setMessage(message);
                 notification.setNomUtilisateur(reclamation.getUser().getNom());
-                notification.setNomMatiere(reclamation.getMatiere().getNomMatiere());
+                notification.setNomMatiere(reclamation.getMatiere().getLibelle());
                 notification.setNoteMatiere(reclamation.getMatiere().getNoteMatiere());
                 notification.setPriorite(reclamation.getPriorite());
                 notification.setDateHeure(LocalDateTime.now());

@@ -61,7 +61,7 @@ public class NoteServiceImpl implements NoteService {
             etudiant.getEmail(),
             etudiant.getNom(),
             enseignant.getNom(),
-            tache.getMatiere().getNomMatiere(),
+            tache.getMatiere().getLibelle(),
             note.getValeur()
         );
         

@@ -12,8 +12,9 @@ public class Matiere {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String nomMatiere;
-    private Float noteMatiere;
+    private String libelle;
+    private String description;
+    private float noteMatiere;
     
     @ManyToOne
     @JoinColumn(name = "etudiant_id")
@@ -23,8 +24,9 @@ public class Matiere {
     public Matiere() {
     }
     
-    public Matiere(String nomMatiere, Float noteMatiere) {
-        this.nomMatiere = nomMatiere;
+    public Matiere(String libelle, String description, float noteMatiere) {
+        this.libelle = libelle;
+        this.description = description;
         this.noteMatiere = noteMatiere;
     }
     
@@ -37,19 +39,27 @@ public class Matiere {
         this.id = id;
     }
     
-    public String getNomMatiere() {
-        return nomMatiere;
+    public String getLibelle() {
+        return libelle;
     }
     
-    public void setNomMatiere(String nomMatiere) {
-        this.nomMatiere = nomMatiere;
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
     }
     
-    public Float getNoteMatiere() {
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public float getNoteMatiere() {
         return noteMatiere;
     }
     
-    public void setNoteMatiere(Float noteMatiere) {
+    public void setNoteMatiere(float noteMatiere) {
         this.noteMatiere = noteMatiere;
     }
     

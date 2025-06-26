@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface MatiereRepository extends JpaRepository<Matiere, Long> {
-    // Méthode pour trouver une matière par son nom
-    Matiere findByNomMatiere(String nomMatiere);
+    // Méthode pour trouver une matière par son libellé
+    Matiere findByLibelle(String libelle);
     
     // Méthode pour trouver les matières associées à un étudiant
     List<Matiere> findByEtudiantId(Long etudiantId);
