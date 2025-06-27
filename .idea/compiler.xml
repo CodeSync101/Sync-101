@@ -27,15 +27,43 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
         <module name="web-api" />
       </profile>
+      <profile name="Annotation profile for projetMission" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="projetMission" />
+      </profile>
+      <profile name="Annotation profile for GestionRec_Not" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="GestionRec_Not" />
+        <module name="ticket-management" />
+      </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="backend" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="GestionRec_Not" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
+      <module name="backend" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
+      <module name="projetMission" options="-parameters" />
+      <module name="ticket-management" options="-parameters" />
       <module name="user-service" options="-parameters" />
       <module name="web-api" options="-parameters" />
     </option>
