@@ -13,7 +13,7 @@ spring:
         - id: web-api
           uri: http://localhost:8084
           predicates:
-            - Path=/api/reporting/**
+            - Path=/reporting/**
           filters:
             - StripPrefix=2
         - id: user-service
