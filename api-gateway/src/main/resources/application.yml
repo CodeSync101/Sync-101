@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8082}
+  port: 8082
 
 spring:
   application:
@@ -10,104 +10,28 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-service-admin
+        - id: web-api
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/reporting/**
+          filters:
+            - StripPrefix=2
+        - id: user-service
           uri: http://localhost:8083
           predicates:
-            - Path=/api/v1/admin/**
-          filters:
-            - StripPrefix=3
-        - id: user-service-classroom
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/v1/classroom/**
-          filters:
-            - StripPrefix=3
-        - id: user-service-group
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/v1/group/**
-          filters:
-            - StripPrefix=3
-        - id: user-service-organization
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/v1/organization/**
-          filters:
-            - StripPrefix=3
-        - id: user-service-users
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/v1/users/**
-          filters:
-            - StripPrefix=3
-
-        - id: web-api-rapport
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/rapport/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-github
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/github/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-chatbot
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/chatbot/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-reporting
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/reporting/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-pulls
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/pulls/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-organization
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/organization/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-events
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/events/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-commit
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/commit/**
-          filters:
-            - StripPrefix=3
-        - id: web-api-branches
-          uri: http://localhost:8888
-          predicates:
-            - Path=/api/v1/branches/**
+            - Path=/api/**
           filters:
             - StripPrefix=3
       globalcors:
+        add-to-simple-url-handler-mapping: true
         corsConfigurations:
           '[/**]':
-            allowedOriginPatterns: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-              - OPTIONS
+            allowedOrigins: "*"
             allowedHeaders: "*"
-            allowCredentials: true
+            allowedMethods: "*"
+        config:
+          enabled: false
+
 
 management:
   endpoints:
