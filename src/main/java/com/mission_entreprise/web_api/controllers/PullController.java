@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/pulls")
+@RequestMapping("/pulls")
 @RequiredArgsConstructor
 @Slf4j
 public class PullController {
@@ -32,4 +32,6 @@ public class PullController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+
 }

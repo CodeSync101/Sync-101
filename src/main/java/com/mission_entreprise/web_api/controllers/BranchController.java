@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/branches")
+@RequestMapping("/branches")
 @RequiredArgsConstructor
 @Slf4j
 public class BranchController {

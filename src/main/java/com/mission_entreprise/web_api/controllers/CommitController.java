@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/commit")
+@RequestMapping("/commit")
 public class CommitController {
 
     private final CommitService commitService;
