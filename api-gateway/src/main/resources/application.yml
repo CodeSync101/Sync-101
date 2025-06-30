@@ -1,6 +1,5 @@
 server:
   port: 8082
-
 spring:
   application:
     name: api-gateway
@@ -22,6 +21,14 @@ spring:
             - Path=/api/**
           filters:
             - StripPrefix=3
+        - id: projetMission
+          uri: http://localhost:8085
+          predicates:
+            - Path=/matiere/**
+        - id : GestionRec_Not
+          uri: http://localhost:8086
+          predicates:
+              - Path=/gestionrec/**
       globalcors:
         add-to-simple-url-handler-mapping: true
         corsConfigurations:
