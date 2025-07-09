@@ -58,6 +58,11 @@ public interface CommitRepository extends JpaRepository<Commit,Long> {
     @Query("select count(*) from Commit c where c.organization =:organization")
     Long getCommitByOrganizationCount(@Param("organization") String organization);
 
+    @Query("SELECT c.date FROM Commit c WHERE c.organization = :organization")
+    List<String> findAllCommitDatesByOrganization(@Param("organization") String organization);
+
+    @Query("SELECT c.repositoryName, COUNT(c) FROM Commit c WHERE c.organization = :organization AND c.repositoryName IS NOT NULL GROUP BY c.repositoryName")
+    List<Object[]> countCommitsPerRepository(@Param("organization") String organization);
 
 
 }

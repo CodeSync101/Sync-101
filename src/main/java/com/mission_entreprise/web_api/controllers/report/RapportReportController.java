@@ -52,4 +52,5 @@ public class RapportReportController {
                 .map(u -> (u.getNom() + " " + u.getPrenom()).trim())
                 .collect(Collectors.toList());
     }
+
 }

@@ -1,6 +1,5 @@
 package com.mission_entreprise.web_api.services;
 
-
 import com.mission_entreprise.web_api.dtos.DistinctBranchDTO;
 import com.mission_entreprise.web_api.dtos.GitHubEventDto;
 import com.mission_entreprise.web_api.entities.Branch;
@@ -17,9 +16,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SynchronizationService {
 
-    private final CommitService commitService ;
-    private final BranchRepository branchRepository ;
-    private final GitHubEventService gitHubEventService ;
+    private final CommitService commitService;
+    private final BranchRepository branchRepository;
+    private final GitHubEventService gitHubEventService;
+    private final PullService pullService;
 
     @Scheduled(fixedRate = 10 * 60 * 1000)
     public void synchronize() {
@@ -63,7 +63,25 @@ public class SynchronizationService {
             }
         }
 
+        // 3. Pull request sync per distinct org/repo
+        if (distinctBranches != null && !distinctBranches.isEmpty()) {
+            log.info("Starting pull request synchronization for {} distinct org/repo pairs", distinctBranches.size());
+            for (DistinctBranchDTO dto : distinctBranches) {
+                try {
+                    String org = dto.getOrganization();
+                    String repo = dto.getRepositoryName();
+
+                    log.info("Fetching pull requests for Org: {}, Repo: {}", org, repo);
+                    pullService.savePullRequestsByOrgAndRepo(org, repo);
+                    log.info("Successfully synced pull requests for Org: {}, Repo: {}", org, repo);
+                } catch (Exception e) {
+                    log.error("Error syncing pull requests for Org: {}, Repo: {}: {}", dto.getOrganization(), dto.getRepositoryName(), e.getMessage());
+                }
+            }
+        } else {
+            log.warn("No distinct branch data found for pull request synchronization.");
+        }
+
         log.info("Synchronization completed");
     }
-
 }
