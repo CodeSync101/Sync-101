@@ -36,7 +36,7 @@ public class GroupRepoController {
 
     @Operation(summary = "Create group", description = "Creates new group")
     @PostMapping("/create-group")
-    @PreAuthorize("hasAuthority('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<GroupRepoResponse> registerGroupRepo(@RequestBody GroupRepoRequest request) {
         GroupRepo groupRepo = groupRepoService.registerGroupRepo(request);
         return ResponseEntity.ok(mapToResponse(groupRepo));

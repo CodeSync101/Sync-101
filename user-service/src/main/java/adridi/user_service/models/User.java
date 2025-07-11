@@ -58,8 +58,12 @@ public class User {
     )
     private Set<Organization> managedOrganizations = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
+
     public User(Long id, String username, String first_name, String last_name,
-                String email, Boolean locked, Boolean enabled) {
+                String email, Boolean locked, Boolean enabled, Organization organization) {
         this.id = id;
         this.username = username;
         this.first_name = first_name;
@@ -67,6 +71,7 @@ public class User {
         this.email = email;
         this.locked = locked;
         this.enabled = enabled;
+        this.organization = organization;
         this.groups = new HashSet<>();
         this.teacherGroups = new HashSet<>();
         this.managedOrganizations = new HashSet<>();

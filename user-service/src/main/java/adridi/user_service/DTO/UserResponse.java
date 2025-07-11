@@ -26,4 +26,5 @@ public class UserResponse {
     private Set<GroupRepoDTO> groups;
     private Set<GroupRepoDTO> teacherGroups;
     private Set<OrganizationDTO> managedOrganizations;
+    private OrganizationDTO organization;
 }

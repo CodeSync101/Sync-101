@@ -25,7 +25,7 @@ public class AdminController {
 
     @Operation(summary = "Assign teacher to group", description = "Assigns a user as a teacher to a group")
     @PostMapping("/assign-teacher")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> assignTeacherToGroup(
             @RequestParam Long userId,
             @RequestParam Long groupId) {
@@ -35,7 +35,7 @@ public class AdminController {
 
     @Operation(summary = "Assign field manager to organization", description = "Assigns a user as a field manager to an organization")
     @PostMapping("/assign-field-manager")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> assignFieldManagerToOrganization(
             @RequestParam Long userId,
             @RequestParam Long organizationId) {

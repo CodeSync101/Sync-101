@@ -33,6 +33,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User registerUser(UserRequest request) {
+        // Validate and fetch the organization
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new RuntimeException("Organization not found with id: " + request.getOrganizationId()));
+
         String keycloakId = keycloakService.createKeycloakUser(request);
 
         User user = new User(
@@ -42,58 +46,18 @@ public class UserServiceImpl implements UserService {
                 request.getLastName(),
                 request.getEmail(),
                 request.getLocked() != null ? request.getLocked() : false,
-                request.getEnabled() != null ? request.getEnabled() : true
+                request.getEnabled() != null ? request.getEnabled() : true,
+                organization
         );
         user.setKeycloakId(keycloakId);
         user.setGithubUsername(request.getGithubUsername());
         user.setGroups(new HashSet<>());
         user.setRoles(request.getRoles() != null ? request.getRoles() : new HashSet<>());
 
-        if (request.getGroup_name() != null && !request.getGroup_name().isEmpty()) {
-            GroupRepo group = groupRepoRepository.findByGroup_name(request.getGroup_name())
-                    .orElseThrow(() -> new RuntimeException("Group not found"));
-            user.getGroups().add(group);
-            group.getUsers().add(user);
-        }
-
-        return userRepository.save(user);
-    }
-
-    @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-    }
-
-    @Override
-    @Transactional
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional
-    public User updateUser(Long id, UserUpdateRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (request.getUsername() != null) user.setUsername(request.getUsername());
-        if (request.getFirstName() != null) user.setFirst_name(request.getFirstName());
-        if (request.getLastName() != null) user.setLast_name(request.getLastName());
-        if (request.getEmail() != null) user.setEmail(request.getEmail());
-        if (request.getLocked() != null) user.setLocked(request.getLocked());
-        if (request.getEnabled() != null) user.setEnabled(request.getEnabled());
-
-        if (request.getGroup_name() != null) {
-            GroupRepo group = groupRepoRepository.findByGroup_name(request.getGroup_name())
-                    .orElseThrow(() -> new RuntimeException("Group not found"));
-            user.getGroups().add(group);
-            group.getUsers().add(user);
+        // If the user is a FIELD_MANAGER, add to managedOrganizations
+        if (user.getRoles().contains(Role.FIELD_MANAGER)) {
+            user.getManagedOrganizations().add(organization);
+            organization.getFieldManagers().add(user);
         }
 
         return userRepository.save(user);
@@ -104,9 +68,13 @@ public class UserServiceImpl implements UserService {
     public User addUserToGroup(Long userId, Long groupId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         GroupRepo group = groupRepoRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        // Ensure the group belongs to the user's organization
+        if (!group.getOrganization().getId().equals(user.getOrganization().getId())) {
+            throw new RuntimeException("Group does not belong to the user's organization");
+        }
 
         try {
             String githubUsername = user.getGithubUsername();
@@ -139,10 +107,47 @@ public class UserServiceImpl implements UserService {
         GroupRepo group = groupRepoRepository.findByGroup_name(groupName)
                 .orElseThrow(() -> new RuntimeException("Group not found"));
 
+        if (!group.getOrganization().getId().equals(user.getOrganization().getId())) {
+            throw new RuntimeException("Group does not belong to the user's organization");
+        }
+
         user.getGroups().remove(group);
         group.getUsers().remove(user);
 
         return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public User updateUser(Long id, UserUpdateRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getUsername() != null) user.setUsername(request.getUsername());
+        if (request.getFirstName() != null) user.setFirst_name(request.getFirstName());
+        if (request.getLastName() != null) user.setLast_name(request.getLastName());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getLocked() != null) user.setLocked(request.getLocked());
+        if (request.getEnabled() != null) user.setEnabled(request.getEnabled());
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -163,21 +168,7 @@ public class UserServiceImpl implements UserService {
                 (List<String>) jwt.getClaimAsMap("realm_access").get("roles") : List.of();
 
         User user = userRepository.findByKeycloakId(keycloakId)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setKeycloakId(keycloakId);
-                    newUser.setUsername(jwt.getClaimAsString("preferred_username"));
-                    newUser.setEmail(jwt.getClaimAsString("email"));
-                    newUser.setFirst_name(jwt.getClaimAsString("given_name"));
-                    newUser.setLast_name(jwt.getClaimAsString("family_name"));
-                    newUser.setEnabled(true);
-                    newUser.setLocked(false);
-                    newUser.setGroups(new HashSet<>());
-                    newUser.setTeacherGroups(new HashSet<>());
-                    newUser.setManagedOrganizations(new HashSet<>());
-                    newUser.setRoles(new HashSet<>());
-                    return newUser;
-                });
+                .orElseThrow(() -> new RuntimeException("User not found and cannot be created without organization"));
 
         Set<Role> userRoles = new HashSet<>();
         for (String role : roles) {
@@ -220,6 +211,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Group not found"));
         if (!user.getRoles().contains(Role.TEACHER)) {
             throw new RuntimeException("User is not a teacher");
+        }
+        if (!group.getOrganization().getId().equals(user.getOrganization().getId())) {
+            throw new RuntimeException("Group does not belong to the user's organization");
         }
         user.getTeacherGroups().add(group);
         group.getTeachers().add(user);

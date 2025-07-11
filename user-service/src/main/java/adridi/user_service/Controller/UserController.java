@@ -39,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok(mapToResponse(user));
     }
 
-    @Operation(summary = "Register new user", description = "Creates a new user account")
+    @Operation(summary = "Register new user", description = "Creates a new user account with a mandatory organization")
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
         User user = userService.registerUser(request);
@@ -75,7 +75,7 @@ public class UserController {
 
     @Operation(summary = "Update user", description = "Updates user information")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN') or #id == authentication.principal.attributes['sub']")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request) {
         User user = userService.updateUser(id, request);
         return ResponseEntity.ok(mapToResponse(user));
@@ -145,6 +145,52 @@ public class UserController {
         return ResponseEntity.ok(orgDTOs);
     }
 
+    @Operation(summary = "Get groups by user ID", description = "Retrieves groups associated with a specific user")
+    @GetMapping("/{userId}/groups")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+    public ResponseEntity<Set<GroupRepoDTO>> getGroupsByUserId(@PathVariable Long userId) {
+        Set<GroupRepo> groups = userService.getUserGroups(userId);
+        Set<GroupRepoDTO> groupDTOs = groups.stream()
+                .map(group -> new GroupRepoDTO(
+                        group.getId(),
+                        group.getGroup_name(),
+                        group.getGroup_description(),
+                        group.getGroup_type()
+                ))
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(groupDTOs);
+    }
+
+    @Operation(summary = "Get organizations by user ID", description = "Retrieves organizations associated with a specific user (primary and managed)")
+    @GetMapping("/{userId}/organizations")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIELD_MANAGER')")
+    public ResponseEntity<Set<OrganizationDTO>> getOrganizationsByUserId(@PathVariable Long userId) {
+        User user = userService.getUserById(userId);
+        Set<Organization> organizations = new HashSet<>(user.getManagedOrganizations());
+        organizations.add(user.getOrganization());
+        Set<OrganizationDTO> orgDTOs = organizations.stream()
+                .map(org -> OrganizationDTO.builder()
+                        .id(org.getId())
+                        .org_name(org.getOrg_name())
+                        .org_email(org.getOrg_email())
+                        .org_owner(org.getOrg_owner())
+                        .classRoomId(org.getClassRoom() != null ? org.getClassRoom().getId() : null)
+                        .groupRepos(org.getGroupRepos().stream()
+                                .map(group -> new GroupRepoDTO(
+                                        group.getId(),
+                                        group.getGroup_name(),
+                                        group.getGroup_description(),
+                                        group.getGroup_type()
+                                ))
+                                .collect(Collectors.toList()))
+                        .fieldManagers(org.getFieldManagers().stream()
+                                .map(u -> new UserDTO(u.getId(), u.getUsername(), u.getEmail()))
+                                .collect(Collectors.toSet()))
+                        .build())
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(orgDTOs);
+    }
+
     private UserResponse mapToResponse(User user) {
         Set<GroupRepoDTO> groupRepoDTOs = (user.getGroups() != null)
                 ? user.getGroups().stream()
@@ -191,6 +237,25 @@ public class UserController {
                 .collect(Collectors.toSet())
                 : new HashSet<>();
 
+        OrganizationDTO organizationDTO = OrganizationDTO.builder()
+                .id(user.getOrganization().getId())
+                .org_name(user.getOrganization().getOrg_name())
+                .org_email(user.getOrganization().getOrg_email())
+                .org_owner(user.getOrganization().getOrg_owner())
+                .classRoomId(user.getOrganization().getClassRoom() != null ? user.getOrganization().getClassRoom().getId() : null)
+                .groupRepos(user.getOrganization().getGroupRepos().stream()
+                        .map(group -> new GroupRepoDTO(
+                                group.getId(),
+                                group.getGroup_name(),
+                                group.getGroup_description(),
+                                group.getGroup_type()
+                        ))
+                        .collect(Collectors.toList()))
+                .fieldManagers(user.getOrganization().getFieldManagers().stream()
+                        .map(fm -> new UserDTO(fm.getId(), fm.getUsername(), fm.getEmail()))
+                        .collect(Collectors.toSet()))
+                .build();
+
         return UserResponse.builder()
                 .id(user.getId())
                 .keycloakId(user.getKeycloakId())
@@ -205,6 +270,7 @@ public class UserController {
                 .groups(groupRepoDTOs)
                 .teacherGroups(teacherGroupDTOs)
                 .managedOrganizations(managedOrgDTOs)
+                .organization(organizationDTO)
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package adridi.user_service.DTO;
 import adridi.user_service.Models.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,8 @@ public class UserRequest {
 
     private Boolean locked;
     private Boolean enabled;
-    private String group_name;
+    @NotNull(message = "Organization ID is required")
+    private Long organizationId;
     private String githubUsername;
     private Set<Role> roles;
 }

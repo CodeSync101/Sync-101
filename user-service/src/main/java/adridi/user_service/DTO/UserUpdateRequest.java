@@ -14,7 +14,6 @@ public class UserUpdateRequest {
     private String lastName;
     @Email(message = "Email must be valid")
     private String email;
-    private String group_name;
     private Boolean locked;
     private Boolean enabled;
 }
