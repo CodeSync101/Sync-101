@@ -1,5 +1,6 @@
 server:
   port: 8082
+
 spring:
   application:
     name: api-gateway
@@ -15,30 +16,43 @@ spring:
             - Path=/reporting/**
           filters:
             - StripPrefix=2
+
         - id: user-service
           uri: http://localhost:8083
           predicates:
             - Path=/api/**
           filters:
             - StripPrefix=3
+
         - id: projetMission
           uri: http://localhost:8085
           predicates:
             - Path=/matiere/**
-        - id : GestionRec_Not
+          filters:
+            - StripPrefix=1
+
+        - id: GestionRec_Not
           uri: http://localhost:8086
           predicates:
-              - Path=/gestionrec/**
+            - Path=/gestionrec/**
+          filters:
+            - StripPrefix=1
+
+        - id: backend
+          uri: http://localhost:8089
+          predicates:
+            - Path=/task/api/**
+          filters:
+            - StripPrefix=2
+
       globalcors:
-        add-to-simple-url-handler-mapping: true
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "*"
+            allowedOrigins:
+              - "http://localhost:4200"
             allowedHeaders: "*"
             allowedMethods: "*"
-        config:
-          enabled: false
-
+            allowCredentials: true
 
 management:
   endpoints:
@@ -58,9 +72,3 @@ logging:
     com.example: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          issuer-uri: http://keycloak-auth:8080/realms/codesync-auth
-#          jwk-set-uri: http://keycloak-auth:8080/realms/codesync-auth/protocol/openid-connect/certs
