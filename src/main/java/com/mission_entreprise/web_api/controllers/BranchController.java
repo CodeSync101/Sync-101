@@ -42,6 +42,18 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
+    @PostMapping("/fetch/{organization}")
+    public ResponseEntity<String> fetchBranchesForOrganization(@PathVariable String organization) {
+        if (organization == null || organization.isBlank()) {
+            return ResponseEntity.badRequest().body("Organization name must be provided");
+        }
+        try {
+            branchService.fetchAndSaveBranchesForOrg(organization);
+            return ResponseEntity.ok("Branches fetched and saved for organization: " + organization);
+        } catch (Exception e) {
+            log.error("Error fetching branches for organization {}: {}", organization, e.getMessage());
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
 
 }

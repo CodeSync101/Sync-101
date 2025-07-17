@@ -32,15 +32,16 @@ public class CommitService {
 
         return commitRepository.findEventsDetailsPush(organization,topFive);
     }
-    public List<PullMergeDTO> getAllPullAnalyticsLatest() {
-        Pageable topFive = PageRequest.of(0, 50);
-        return commitRepository.findEventsDetailsPulls(topFive);
+    public List<PullMergeDTO> getAllPullAnalyticsLatest(String organization) {
+        Pageable topFifty = PageRequest.of(0, 50);
+        return commitRepository.findEventsDetailsPulls(organization, topFifty);
     }
+
 
     public ContributionSummaryDTO getContributionSummary(int topLimit,String organization) {
         List<EventAnalyticsDTO> commits = getAllCommitsAnalyticsLatest(organization);
         List<PushEventDTO> pushes = getAllPushAnalyticsLatest(organization);
-        List<PullMergeDTO> pulls = getAllPullAnalyticsLatest();
+        List<PullMergeDTO> pulls = getAllPullAnalyticsLatest(organization);
 
         Map<String, Integer> contributionsByAuthor = new HashMap<>();
 

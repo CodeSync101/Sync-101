@@ -45,9 +45,9 @@
             }
         }
         @GetMapping("/get-latest-pulls")
-        public ResponseEntity<List<PullMergeDTO>> getLatestPulls() {
+        public ResponseEntity<List<PullMergeDTO>> getLatestPulls(@RequestParam String organization) {
             try {
-                List<PullMergeDTO> pushes = commitService.getAllPullAnalyticsLatest();
+                List<PullMergeDTO> pushes = commitService.getAllPullAnalyticsLatest(organization);
                 return ResponseEntity.ok(pushes);
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().build();

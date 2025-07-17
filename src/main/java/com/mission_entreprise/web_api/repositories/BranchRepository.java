@@ -19,5 +19,6 @@ public interface BranchRepository extends JpaRepository<Branch,Long> {
 
     @Query("SELECT DISTINCT new com.mission_entreprise.web_api.dtos.DistinctBranchDTO(b.organization, b.repositoryName) FROM Branch b")
     List<DistinctBranchDTO> getDistinctBranches();
+    boolean existsByNameAndRepositoryName(String name, String repositoryName);
 
 }

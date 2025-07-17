@@ -22,5 +22,5 @@ public class Pull {
     private String htmlUrl;
     private String state ;
     private String mergedAt ;
-
+    private String organization ;
 }

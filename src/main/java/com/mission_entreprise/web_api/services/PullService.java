@@ -39,6 +39,7 @@ public class PullService {
                     pull.setHtmlUrl(pr.getHtmlUrl());
                     pull.setState(pr.getState());
                     pull.setMergedAt(pr.getMerged_at());
+                    pull.setOrganization(org);
                     pullRepository.save(pull);
                 }
             }

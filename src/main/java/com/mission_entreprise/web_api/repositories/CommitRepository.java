@@ -51,8 +51,9 @@ public interface CommitRepository extends JpaRepository<Commit,Long> {
 
     @Query("select new com.mission_entreprise.web_api.dtos.PushEventDTO(g.createdAt, g.actorLogin, g.eventId, 'Push') from GitHubEventEntity g where g.organization= :organization order by g.createdAt desc ")
     List<PushEventDTO> findEventsDetailsPush(@Param("organization") String organization,Pageable pageable);
-    @Query("select new com.mission_entreprise.web_api.dtos.PullMergeDTO(p.createdAt,p.author,p.htmlUrl,p.state,p.mergedAt,'Pull') from Pull p order by p.createdAt desc")
-    List<PullMergeDTO> findEventsDetailsPulls(Pageable pageable);
+    @Query("select new com.mission_entreprise.web_api.dtos.PullMergeDTO(p.createdAt, p.author, p.htmlUrl, p.state, p.mergedAt, 'Pull', p.organization) " +
+            "from Pull p where p.organization = :organization order by p.createdAt desc")
+    List<PullMergeDTO> findEventsDetailsPulls(@Param("organization") String organization, Pageable pageable);
 
 
     @Query("select count(*) from Commit c where c.organization =:organization")

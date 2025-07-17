@@ -14,4 +14,5 @@ public class PullMergeDTO {
     private String state ;
     private String mergedAt ;
     private String eventType ;
+    private String organization ;
 }
